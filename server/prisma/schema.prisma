@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+model List {
+  id    String @id @default(cuid())
+  title String
+  todos ToDo[] @relation("ListToDos")
+}
+
+model ToDo {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  dueDate     DateTime
+  status      String
+  priority    String
+  list        List     @relation("ListToDos", fields: [listId], references: [id])
+  listId      String
+  ownerId     String
+}
+
+model Activity {
+  id      String @id @default(cuid())
+  ownerid String
+  todoid  String
+  text    String
+}
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
