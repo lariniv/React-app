@@ -26,19 +26,21 @@ model Task {
   priority    TaskPriority
   listId      String
   List        List         @relation(fields: [listId], references: [id])
+  activities  Activity[]
 }
 
 model List {
-  id       String @id @default(cuid())
-  name     String
-  tasks    Task[]
-  owner_id String
+  id      String @id @default(cuid())
+  name    String
+  tasks   Task[]
+  ownerId String @default("1")
 }
 
 model Activity {
   id           String       @id @default(uuid())
   date         DateTime     @default(now())
   taskId       String
+  ownerId      String       @default("1")
   taskName     String
   sourceList   String?
   targetList   String?
@@ -47,6 +49,7 @@ model Activity {
   changedValue String?
   editedField  String?
   type         ActivityType
+  Task         Task         @relation(fields: [taskId], references: [id])
 }
 
 generator client {

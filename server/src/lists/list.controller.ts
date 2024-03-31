@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { List } from '@prisma/client';
+import { List, Prisma } from '@prisma/client';
 import { ListsService } from './list.service';
 
 @Controller('lists')
@@ -17,9 +17,9 @@ export class ListsController {
   @Post()
   async createList(
     @Body('name') name: string,
-    @Body('owner_id') owner_id: string,
+    @Body('ownerId') ownerId: string,
   ): Promise<List> {
-    return this.listsService.createList(name, owner_id);
+    return this.listsService.createList(name, ownerId);
   }
 
   @Get()
@@ -33,15 +33,15 @@ export class ListsController {
   }
 
   @Delete(':id')
-  async deleteList(@Body('id') id: string): Promise<List> {
+  async deleteList(@Param('id') id: string): Promise<List> {
     return this.listsService.deleteList(id);
   }
 
   @Patch(':id')
   async updateList(
     @Param('id') id: string,
-    @Body('name') name: string,
+    @Body() data: Prisma.ListUpdateInput,
   ): Promise<List> {
-    return this.listsService.updateList(id, name);
+    return this.listsService.updateList(id, data);
   }
 }

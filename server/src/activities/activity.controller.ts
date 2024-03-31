@@ -1,8 +1,42 @@
-/*
-https://docs.nestjs.com/controllers#controllers
-*/
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { ActivityService } from './activity.service';
+import { Activity, Prisma } from '@prisma/client';
 
-import { Controller } from '@nestjs/common';
+@Controller('activities')
+export class ActivityController {
+  constructor(private readonly activityService: ActivityService) {}
 
-@Controller()
-export class ActivityController {}
+  @Get()
+  async getAllActivities(): Promise<Activity[]> {
+    return this.activityService.getAllActivities();
+  }
+
+  @Get('by-user/:id')
+  async getActivitiesByUserId(@Param('id') id: string): Promise<Activity[]> {
+    return this.activityService.getActivitiesByUserId(id);
+  }
+
+  @Get('by-task/:id')
+  async getActivityByTaskId(@Param('id') id: string): Promise<Activity[]> {
+    return this.activityService.getActivityByTaskId(id);
+  }
+
+  @Get(':id')
+  async getActivityById(@Param('id') id: string): Promise<Activity> {
+    return this.activityService.getActivityById(id);
+  }
+
+  @Delete('by-task/:id')
+  async deleteActivitiesByTaskId(
+    @Param('id') id: string,
+  ): Promise<Prisma.BatchPayload> {
+    return this.activityService.deleteActivitiesByTaskId(id);
+  }
+
+  @Post()
+  async createActivity(
+    @Body() data: Prisma.ActivityCreateInput,
+  ): Promise<Activity> {
+    return this.activityService.createActivity(data);
+  }
+}
