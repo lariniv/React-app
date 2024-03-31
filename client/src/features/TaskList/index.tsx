@@ -1,8 +1,10 @@
-import { Task } from "@/app/todo-lists-slice";
+import { Task } from "@/app/store/todo-slice/todo-lists-slice";
 import { TaskCard } from "@/entities";
 import { Button } from "@/shared/components/ui/button";
 
-import { EllipsisVertical, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import TaskListMenu from "./components/TaskListMenu";
+import AddCardForm from "./components/AddCardForm";
 
 export default function TaskList({
   title,
@@ -19,18 +21,20 @@ export default function TaskList({
         <div>{title}</div>
         <div className="flex items-center gap-2">
           <div>{totalTaskAmount}</div>
-          <EllipsisVertical size={16} className="cursor-pointer" />
+          <TaskListMenu />
         </div>
       </div>
 
-      <div>
-        <Button
-          variant={"outline"}
-          className="border-dashed border-2 w-full flex gap-2"
-        >
-          <Plus size={20} />
-          <p>Add new card</p>
-        </Button>
+      <div className="w-full">
+        <AddCardForm selector="w-full">
+          <Button
+            variant={"outline"}
+            className="border-dashed border-2 w-full flex gap-2 justify-center"
+          >
+            <Plus size={20} />
+            <p>Add new card</p>
+          </Button>
+        </AddCardForm>
       </div>
 
       <div className="flex flex-col gap-2">

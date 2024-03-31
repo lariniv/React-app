@@ -1,4 +1,5 @@
-import { Task } from "@/app/todo-lists-slice";
+import { RootState } from "@/app/store/store";
+import { Task, moveTask } from "@/app/store/todo-slice/todo-lists-slice";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -13,20 +14,27 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { Calendar, ChevronDown, EllipsisVertical } from "lucide-react";
+import { Calendar, ChevronDown } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import TaskCardMenu from "./components/TaskCardMenu";
+import { useList } from "@/app/list-provider/list-provider";
 
 export default function TaskCard({
   name,
   description,
   dueDate,
   priority,
+  id,
 }: Task) {
+  const { id: listId } = useList();
+  const dispatch = useDispatch();
+  const taskLists = useSelector((state: RootState) => state.taskLists);
   return (
     <Card className="w-full text-start">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           {name}
-          <EllipsisVertical size={20} className="cursor-pointer" />
+          <TaskCardMenu task={{ name, description, dueDate, priority, id }} />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -34,7 +42,13 @@ export default function TaskCard({
           <div>{description}</div>
           <div className="flex items-center gap-1">
             <Calendar size={18} />
-            <p>{dueDate}</p>
+            <p>
+              {dueDate.toLocaleDateString("en-UA", {
+                weekday: "short",
+                day: "numeric",
+                month: "long",
+              })}
+            </p>
           </div>
 
           <div className="py-2">
@@ -62,18 +76,23 @@ export default function TaskCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-60">
-            <DropdownMenuItem>
-              <div>To do</div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div>Planned</div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div>In progress</div>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <div>Closed</div>
-            </DropdownMenuItem>
+            {taskLists.map((list) => (
+              <DropdownMenuItem
+                className="cursor-pointer"
+                key={list.id}
+                onClick={() => {
+                  dispatch(
+                    moveTask({
+                      taskId: id,
+                      targetListId: list.id,
+                      sourceListId: listId,
+                    })
+                  );
+                }}
+              >
+                <div>{list.name}</div>
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </CardFooter>
