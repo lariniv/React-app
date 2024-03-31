@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store/store";
 import { useMemo, useState } from "react";
 import EditCardPopupForm from "./CardPopupForm";
+import SmallActivityItem from "@/pages/Home/SmallActivityItem";
 
 export default function EditCardForm({
   children,
@@ -29,9 +30,17 @@ export default function EditCardForm({
 
   const { id } = useList();
 
-  const state = useSelector((state: RootState) => state.taskLists);
+  const { todo, activity } = useSelector((state: RootState) => state);
 
-  const list = useMemo(() => state.find((list) => list.id === id), [state, id]);
+  const taskLists = todo.taskLists;
+  const taskActivities = activity.activityLog.filter(
+    (activity) => task.id === activity.taskId
+  );
+
+  const list = useMemo(
+    () => taskLists.find((list) => list.id === id),
+    [taskLists, id]
+  );
 
   return (
     <Dialog>
@@ -105,10 +114,15 @@ export default function EditCardForm({
             />
           )}
 
-          <div className="w-full bg-secondary/50 pl-8 pt-8">
+          <div className="w-full bg-secondary/50 pl-8 pt-8  ">
             <h3 className="text-xl font-bold h-10 flex items-center">
               Activity
             </h3>
+            <ul className="flex flex-col gap-2 pr-4 overflow-y-auto max-h-[52vh]">
+              {taskActivities.map((activity) => (
+                <SmallActivityItem key={activity.id} activity={activity} />
+              ))}
+            </ul>
           </div>
         </div>
       </DialogContent>

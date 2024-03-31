@@ -11,6 +11,7 @@ import { useDispatch } from "react-redux";
 import { removeTaskList } from "@/app/store/todo-slice/todo-lists-slice";
 import { useState } from "react";
 import { useList } from "@/app/list-provider/list-provider";
+import { addRemoveActivity } from "@/app/store/activity-slice/activity-slice";
 
 export default function RemoveListForm({
   children,
@@ -46,6 +47,7 @@ export default function RemoveListForm({
             className="w-1/2"
             onClick={() => {
               dispatch(removeTaskList({ listId }));
+
               setIsOpen(false);
             }}
           >

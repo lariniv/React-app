@@ -17,13 +17,15 @@ import {
   FormMessage,
 } from "@/shared/components/ui/form";
 
-import { useDispatch } from "react-redux";
-import { TaskDto, addTask } from "@/app/store/todo-slice/todo-lists-slice";
+import { useDispatch, useSelector } from "react-redux";
+import { Task, addTask } from "@/app/store/todo-slice/todo-lists-slice";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useList } from "@/app/list-provider/list-provider";
+import { addAddActivity } from "@/app/store/activity-slice/activity-slice";
+import { RootState } from "@/app/store/store";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Title is required" }),
@@ -42,6 +44,10 @@ export default function AddCardForm({
 
   const { id: listId } = useList();
 
+  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+
+  const list = taskLists.find((list) => list.id === listId);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,15 +60,26 @@ export default function AddCardForm({
   function onSubmit(value: z.infer<typeof formSchema>) {
     const name = value.name;
     const description = value.description;
+    const id = new Date().toString();
+    const dueDate = new Date();
     let priority = value.priority as "low" | "medium" | "high";
 
     if (priority !== "low" && priority !== "medium" && priority !== "high") {
       priority = "low";
     }
 
-    const task: TaskDto = { name, description, priority };
+    const task: Task = { name, description, priority, id, dueDate };
 
     dispatch(addTask({ listId, task }));
+
+    dispatch(
+      addAddActivity({
+        listName: list?.name as string,
+        type: "add",
+        taskId: id,
+        taskName: name,
+      })
+    );
 
     form.reset();
   }

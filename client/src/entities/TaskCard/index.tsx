@@ -18,6 +18,7 @@ import { Calendar, ChevronDown } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import TaskCardMenu from "./components/TaskCardMenu";
 import { useList } from "@/app/list-provider/list-provider";
+import { addMoveActivity } from "@/app/store/activity-slice/activity-slice";
 
 export default function TaskCard({
   name,
@@ -28,12 +29,13 @@ export default function TaskCard({
 }: Task) {
   const { id: listId } = useList();
   const dispatch = useDispatch();
-  const taskLists = useSelector((state: RootState) => state.taskLists);
+  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+  const { name: listName } = taskLists.find((list) => list.id === listId)!;
   return (
     <Card className="w-full text-start">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          {name}
+        <CardTitle className="flex items-center justify-between w-full">
+          <span className="max-w-[90%] overflow-clip">{name}</span>
           <TaskCardMenu task={{ name, description, dueDate, priority, id }} />
         </CardTitle>
       </CardHeader>
@@ -81,11 +83,23 @@ export default function TaskCard({
                 className="cursor-pointer"
                 key={list.id}
                 onClick={() => {
+                  if (list.id === listId) return;
+
                   dispatch(
                     moveTask({
                       taskId: id,
                       targetListId: list.id,
                       sourceListId: listId,
+                    })
+                  );
+
+                  dispatch(
+                    addMoveActivity({
+                      taskId: id,
+                      targetList: list.name,
+                      sourcelList: listName,
+                      type: "move",
+                      taskName: name,
                     })
                   );
                 }}

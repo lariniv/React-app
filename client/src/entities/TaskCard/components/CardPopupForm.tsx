@@ -25,6 +25,11 @@ import { useList } from "@/app/list-provider/list-provider";
 import { Calendar, Crosshair, Edit, Tag } from "lucide-react";
 import { RootState } from "@/app/store/store";
 import { Textarea } from "@/shared/components/ui/textarea";
+import {
+  addEditActivity,
+  addMoveActivity,
+  addRenameActivity,
+} from "@/app/store/activity-slice/activity-slice";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Title is required" }),
@@ -43,20 +48,26 @@ export default function EditCardPopupForm({
 }) {
   const dispatch = useDispatch();
 
-  const { id: taskId, name, description, dueDate, priority } = task;
+  const {
+    id: taskId,
+    name: taskName,
+    description: taskDescription,
+    dueDate: taskDueDate,
+    priority: taskPriority,
+  } = task;
 
   const { id: listId } = useList();
 
-  const taskLists = useSelector((state: RootState) => state.taskLists);
+  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name,
-      description,
-      dueDate: dueDate.toISOString().split("T")[0],
+      name: taskName,
+      description: taskDescription,
+      dueDate: taskDueDate.toISOString().split("T")[0],
       status: listId,
-      priority,
+      priority: taskPriority,
     },
   });
 
@@ -69,30 +80,81 @@ export default function EditCardPopupForm({
 
     let task = {} as Partial<TaskDto>;
 
-    if (name) {
+    if (name && name !== taskName) {
       task.name = name;
+      dispatch(
+        addRenameActivity({
+          taskId,
+          taskName,
+          changedValue: name,
+          initialValue: taskName,
+          type: "rename",
+        })
+      );
     }
 
-    if (description) {
+    if (description && description !== taskDescription) {
       task.description = description;
+      dispatch(
+        addEditActivity({
+          taskId,
+          taskName: taskName,
+          edittedField: "description",
+          type: "edit",
+          inititalValue: taskDescription,
+          changedValue: description,
+        })
+      );
     }
 
-    if (priority) {
+    if (priority && priority !== taskPriority) {
       task.priority = priority as "low" | "medium" | "high";
+      dispatch(
+        addEditActivity({
+          taskId,
+          taskName: taskName,
+          edittedField: "priority",
+          type: "edit",
+          inititalValue: taskPriority,
+          changedValue: priority,
+        })
+      );
     }
 
-    if (dueDate) {
-      console.log(new Date(dueDate));
+    if (dueDate && new Date(dueDate).getTime() !== taskDueDate.getTime()) {
       task.dueDate = new Date(dueDate);
+
+      dispatch(
+        addEditActivity({
+          taskId,
+          taskName: taskName,
+          edittedField: "dueDate",
+          type: "edit",
+          inititalValue: taskDueDate,
+          changedValue: dueDate,
+        })
+      );
     }
 
     if (Object.keys(task).length === 0) return;
 
     dispatch(editTask({ listId, taskId, task }));
 
-    if (status) {
+    if (status && status !== listId) {
       dispatch(
         moveTask({ sourceListId: listId, taskId, targetListId: status })
+      );
+
+      dispatch(
+        addMoveActivity({
+          taskId,
+          taskName,
+          sourcelList: taskLists.find((list) => list.id === listId)
+            ?.name as string,
+          targetList: taskLists.find((list) => list.id === status)
+            ?.name as string,
+          type: "move",
+        })
       );
     }
 
@@ -115,7 +177,7 @@ export default function EditCardPopupForm({
               <FormControl>
                 <div className="w-full flex justify-between items-center mt-0">
                   <Input
-                    defaultValue={name}
+                    defaultValue={taskName}
                     placeholder="Name"
                     className="w-1/2 text-3xl font-bold pl-0"
                     {...field}
@@ -179,7 +241,7 @@ export default function EditCardPopupForm({
                     <Input
                       className="w-1/2 font-semibold py-0.5 px-3.5"
                       type="date"
-                      defaultValue={dueDate.toISOString().split("T")[0]}
+                      defaultValue={taskDueDate.toISOString().split("T")[0]}
                       {...field}
                     />
                   </div>
@@ -202,7 +264,7 @@ export default function EditCardPopupForm({
                     <select
                       {...field}
                       className="flex h-10 w-1/2  font-semibold items-center justify-between rounded-md border border-input bg-background px-3 py-0.5 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
-                      defaultValue={priority}
+                      defaultValue={taskPriority}
                     >
                       <option
                         className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
@@ -240,7 +302,7 @@ export default function EditCardPopupForm({
             <FormItem className="w-full flex justify-between items-center">
               <FormControl>
                 <Textarea
-                  defaultValue={description}
+                  defaultValue={taskDescription}
                   className="resize-none w-1/2"
                   rows={5}
                   {...field}

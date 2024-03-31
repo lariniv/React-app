@@ -1,17 +1,18 @@
 import { Button } from "@/shared/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import { removeTask } from "@/app/store/todo-slice/todo-lists-slice";
 import { useState } from "react";
 import { useList } from "@/app/list-provider/list-provider";
+import { addRemoveActivity } from "@/app/store/activity-slice/activity-slice";
+import { RootState } from "@/app/store/store";
 
 export default function RemoveTaskForm({
   children,
@@ -25,6 +26,12 @@ export default function RemoveTaskForm({
   const dispatch = useDispatch();
 
   const { id: listId } = useList();
+
+  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+
+  const list = taskLists.find((list) => list.id === listId);
+
+  const name = list?.tasks.find((task) => task.id === taskId)?.name as string;
 
   const [isOpen, setIsOpen] = useState(false);
   return (
@@ -48,6 +55,14 @@ export default function RemoveTaskForm({
           <Button
             className="w-1/2"
             onClick={() => {
+              dispatch(
+                addRemoveActivity({
+                  taskId,
+                  targetList: listId,
+                  type: "remove",
+                  taskName: name,
+                })
+              );
               dispatch(removeTask({ listId, taskId }));
               setIsOpen(false);
             }}

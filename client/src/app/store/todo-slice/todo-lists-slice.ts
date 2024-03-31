@@ -90,16 +90,12 @@ export const taskListSlice = createSlice({
       }
     },
 
-    addTask: (
-      state,
-      action: PayloadAction<{ listId: string; task: TaskDto }>
-    ) => {
+    addTask: (state, action: PayloadAction<{ listId: string; task: Task }>) => {
       const list = state.taskLists.find(
         (list) => list.id === action.payload.listId
       );
       if (list) {
         list.tasks.push({
-          id: Date.now().toString(),
           ...action.payload.task,
         });
       }

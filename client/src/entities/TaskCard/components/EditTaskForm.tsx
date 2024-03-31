@@ -28,10 +28,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useList } from "@/app/list-provider/list-provider";
+import {
+  addEditActivity,
+  addRenameActivity,
+} from "@/app/store/activity-slice/activity-slice";
+import { useState } from "react";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Title is required" }),
   description: z.string().min(1, { message: "Name is required" }),
+  dueDate: z.string().min(1, { message: "Due date is required" }),
   priority: z.string(),
 });
 
@@ -46,15 +52,22 @@ export default function EditCardForm({
 }) {
   const dispatch = useDispatch();
 
-  const { id: taskId, name, description } = task;
+  const {
+    id: taskId,
+    name: taskName,
+    description: taskDescription,
+    priority: taskPriority,
+    dueDate: taskDueDate,
+  } = task;
 
   const { id: listId } = useList();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name,
-      description,
+      name: taskName,
+      description: taskDescription,
+      dueDate: taskDueDate.toISOString().split("T")[0],
       priority: "",
     },
   });
@@ -63,32 +76,89 @@ export default function EditCardForm({
     const name = value.name;
     const description = value.description;
     const priority = value.priority;
+    const dueDate = value.dueDate;
 
     let task = {} as Partial<TaskDto>;
 
-    if (name) {
+    if (name && name !== taskName) {
       task.name = name;
+
+      dispatch(
+        addRenameActivity({
+          taskId,
+          taskName,
+          initialValue: taskName,
+          changedValue: name,
+          type: "rename",
+        })
+      );
     }
 
-    if (description) {
+    if (description && description !== taskDescription) {
       task.description = description;
+
+      dispatch(
+        addEditActivity({
+          taskId,
+          taskName,
+          edittedField: "description",
+          inititalValue: taskDescription,
+          changedValue: description,
+          type: "edit",
+        })
+      );
     }
 
-    if (priority) {
+    if (dueDate && new Date(dueDate).getTime() !== taskDueDate.getTime()) {
+      task.dueDate = new Date(dueDate);
+
+      dispatch(
+        addEditActivity({
+          taskId,
+          taskName: taskName,
+          edittedField: "dueDate",
+          type: "edit",
+          inititalValue: taskDueDate,
+          changedValue: dueDate,
+        })
+      );
+    }
+
+    if (priority && priority !== task.priority) {
       task.priority = priority as "low" | "medium" | "high";
+
+      dispatch(
+        addEditActivity({
+          taskId,
+          taskName,
+          edittedField: "priority",
+          inititalValue: taskPriority,
+          changedValue: priority,
+          type: "edit",
+        })
+      );
     }
 
     if (Object.keys(task).length === 0) return;
 
     dispatch(editTask({ listId, taskId, task }));
 
+    setIsOpen(false);
+
     form.reset();
   }
 
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <Dialog>
-      <DialogTrigger className={selector}>{children}</DialogTrigger>
-      <DialogContent className={selector}>
+    <Dialog open={isOpen}>
+      <DialogTrigger className={selector} onClick={() => setIsOpen(true)}>
+        {children}
+      </DialogTrigger>
+      <DialogContent
+        customOnClick={() => setIsOpen(false)}
+        className={selector}
+      >
         <DialogHeader className="font-bold mx-auto text-2xl">
           Edit your task!
         </DialogHeader>
@@ -124,6 +194,25 @@ export default function EditCardForm({
                   <FormDescription>
                     Set your desired description
                   </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due date</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      defaultValue={taskDueDate.toISOString().split("T")[0]}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>Set your desired due date</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -167,7 +256,7 @@ export default function EditCardForm({
               )}
             />
 
-            <Button type="submit">Create card</Button>
+            <Button type="submit">Save changes</Button>
           </form>
         </Form>
       </DialogContent>
