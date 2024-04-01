@@ -5,13 +5,13 @@
 
 A step-by-step series of examples that tell you how to get a development environment running.
 
-#### Backend Setup
+### Backend Setup
 
-## Naviagte to server directory
+### Naviagte to server directory
 ```bash
 cd server
 ```
-## Install dependanciies
+### Install dependanciies
 ```bash
 yarn install
 ```
@@ -19,12 +19,12 @@ or
 ```bash
 npm install
 ```
-## Initialize prisma
+### Initialize prisma
 ```bash
 npx prisma migrate dev
 ```
 
-## Start the server
+### Start the server
 ```bash
 yarn start:dev
 ```
@@ -34,13 +34,13 @@ or
 npm run start:dev
 ```
 
-### Frontend Setup
-## Navigate to client directory
+## Frontend Setup
+### Navigate to client directory
 ```bash
 cd client
 ```
 
-## Install dependacies
+### Install dependacies
 ```bash
 yarn install
 ```
@@ -50,7 +50,7 @@ or
 ```bash
 npm install
 ```
-## Start the server
+### Start the server
 ```bash
 yarn dev
 ```
