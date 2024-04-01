@@ -1,19 +1,40 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { fetchAddTodo } from "./thunks/fetch-add-todo";
+import {
+  fetchAddTodoList,
+  fetchDeleteTodoList,
+  fetchGetAllTodoListsByOwnerId,
+  fetchUpdateTodoList,
+} from "./thunks";
+import { fetchDeleteTodo } from "./thunks/fetch-delete-todo";
+import { fetchUpdateTodo } from "./thunks/fetch-update-todo";
+
+export enum priority {
+  low = "low",
+  medium = "medium",
+  high = "high",
+}
 
 export type Task = {
   id: string;
   name: string;
   description: string;
   dueDate: Date;
-  priority: "low" | "medium" | "high";
+  priority: priority;
 };
-
-export type TaskDto = Omit<Task, "id">;
 
 export type TaskListType = {
   id: string;
   name: string;
   tasks: Task[];
+};
+
+export type TaskDto = {
+  name: string;
+  description: string;
+  dueDate: Date;
+  priority: priority;
+  List: string;
 };
 
 type TaskListState = {
@@ -31,14 +52,14 @@ const initialState: TaskListState = {
           name: "Create a new project",
           description: "Create a new project for the client",
           dueDate: new Date(),
-          priority: "low",
+          priority: priority.low,
         },
         {
           id: Math.round(Math.random() * 1000000000000).toString(),
           name: "Create a new project",
           description: "Create a new project for the client",
           dueDate: new Date(),
-          priority: "low",
+          priority: priority.high,
         },
       ],
     },
@@ -120,7 +141,7 @@ export const taskListSlice = createSlice({
       action: PayloadAction<{
         taskId: string;
         listId: string;
-        task: Partial<TaskDto>;
+        task: Partial<Omit<Task, "id">>;
       }>
     ) => {
       const { task } = action.payload;
@@ -183,6 +204,79 @@ export const taskListSlice = createSlice({
         }
       }
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchAddTodo.fulfilled, (state, action) => {
+      const { id, name, description, dueDate, listId, priority } =
+        action.payload;
+
+      const task: Task = {
+        id,
+        name,
+        description,
+        dueDate: new Date(dueDate),
+        priority,
+      };
+
+      const list = state.taskLists.find((list) => list.id === listId);
+      if (list) {
+        list.tasks.push(task);
+      }
+    });
+
+    builder.addCase(fetchAddTodoList.fulfilled, (state, action) => {
+      state.taskLists.push({
+        id: action.payload.id,
+        name: action.payload.name,
+        tasks: [],
+      });
+    });
+
+    builder.addCase(fetchDeleteTodo.fulfilled, (state, action) => {
+      const { id, listId } = action.payload;
+      const list = state.taskLists.find((list) => list.id === listId);
+      if (list) {
+        list.tasks = list.tasks.filter((task) => task.id !== id);
+      }
+    });
+
+    builder.addCase(fetchDeleteTodoList.fulfilled, (state, action) => {
+      state.taskLists = state.taskLists.filter(
+        (list) => list.id !== action.payload.id
+      );
+    });
+
+    builder.addCase(
+      fetchGetAllTodoListsByOwnerId.fulfilled,
+      (state, action) => {
+        state.taskLists = action.payload;
+      }
+    );
+
+    builder.addCase(fetchUpdateTodo.fulfilled, (state, action) => {
+      const { id, name, description, dueDate, listId, priority } =
+        action.payload;
+
+      const task: Task = {
+        id,
+        name,
+        description,
+        dueDate: new Date(dueDate),
+        priority,
+      };
+
+      const list = state.taskLists.find((list) => list.id === listId);
+      if (list) {
+        list.tasks.push(task);
+      }
+    });
+    builder.addCase(fetchUpdateTodoList.fulfilled, (state, action) => {
+      const { id, name } = action.payload;
+      const list = state.taskLists.find((list) => list.id === id);
+      if (list) {
+        list.name = name;
+      }
+    });
   },
 });
 

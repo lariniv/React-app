@@ -1,5 +1,5 @@
-import { RootState } from "@/app/store/store";
-import { Task, moveTask } from "@/app/store/todo-slice/todo-lists-slice";
+import { AppDispatch, RootState } from "@/app/store/store";
+import { Task } from "@/app/store/todo-slice/todo-lists-slice";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -19,6 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import TaskCardMenu from "./components/TaskCardMenu";
 import { useList } from "@/app/list-provider/list-provider";
 import { addMoveActivity } from "@/app/store/activity-slice/activity-slice";
+import { fetchUpdateTodo } from "@/app/store/todo-slice/thunks/fetch-update-todo";
 
 export default function TaskCard({
   name,
@@ -28,7 +29,7 @@ export default function TaskCard({
   id,
 }: Task) {
   const { id: listId } = useList();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const taskLists = useSelector((state: RootState) => state.todo.taskLists);
   const { name: listName } = taskLists.find((list) => list.id === listId)!;
   return (
@@ -85,13 +86,7 @@ export default function TaskCard({
                 onClick={() => {
                   if (list.id === listId) return;
 
-                  dispatch(
-                    moveTask({
-                      taskId: id,
-                      targetListId: list.id,
-                      sourceListId: listId,
-                    })
-                  );
+                  dispatch(fetchUpdateTodo({ id, data: { List: list.id } }));
 
                   dispatch(
                     addMoveActivity({

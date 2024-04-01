@@ -8,11 +8,11 @@ import {
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { removeTask } from "@/app/store/todo-slice/todo-lists-slice";
 import { useState } from "react";
 import { useList } from "@/app/list-provider/list-provider";
 import { addRemoveActivity } from "@/app/store/activity-slice/activity-slice";
-import { RootState } from "@/app/store/store";
+import { AppDispatch, RootState } from "@/app/store/store";
+import { fetchDeleteTodo } from "@/app/store/todo-slice/thunks/fetch-delete-todo";
 
 export default function RemoveTaskForm({
   children,
@@ -23,7 +23,7 @@ export default function RemoveTaskForm({
   taskId: string;
   selector?: string;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { id: listId } = useList();
 
@@ -63,7 +63,7 @@ export default function RemoveTaskForm({
                   taskName: name,
                 })
               );
-              dispatch(removeTask({ listId, taskId }));
+              dispatch(fetchDeleteTodo({ id: taskId }));
               setIsOpen(false);
             }}
           >

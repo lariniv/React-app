@@ -18,14 +18,15 @@ import {
 } from "@/shared/components/ui/form";
 
 import { useDispatch, useSelector } from "react-redux";
-import { Task, addTask } from "@/app/store/todo-slice/todo-lists-slice";
+import { TaskDto, priority } from "@/app/store/todo-slice/todo-lists-slice";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useList } from "@/app/list-provider/list-provider";
 import { addAddActivity } from "@/app/store/activity-slice/activity-slice";
-import { RootState } from "@/app/store/store";
+import { AppDispatch, RootState } from "@/app/store/store";
+import { fetchAddTodo } from "@/app/store/todo-slice/thunks/fetch-add-todo";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Title is required" }),
@@ -40,7 +41,7 @@ export default function AddCardForm({
   children: React.ReactNode;
   selector?: string;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { id: listId } = useList();
 
@@ -62,15 +63,25 @@ export default function AddCardForm({
     const description = value.description;
     const id = new Date().toString();
     const dueDate = new Date();
-    let priority = value.priority as "low" | "medium" | "high";
+    let priorityValue = value.priority as priority;
 
-    if (priority !== "low" && priority !== "medium" && priority !== "high") {
-      priority = "low";
+    if (priorityValue === "low") {
+      priorityValue = priority.low;
+    } else if (priorityValue === "medium") {
+      priorityValue = priority.medium;
+    } else if (priorityValue === "high") {
+      priorityValue = priority.high;
     }
 
-    const task: Task = { name, description, priority, id, dueDate };
+    const task: TaskDto = {
+      name,
+      description,
+      priority: priorityValue,
+      dueDate,
+      List: listId,
+    };
 
-    dispatch(addTask({ listId, task }));
+    dispatch(fetchAddTodo({ taskData: task }));
 
     dispatch(
       addAddActivity({

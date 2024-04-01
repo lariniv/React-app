@@ -19,7 +19,13 @@ export class ListsController {
     @Body('name') name: string,
     @Body('ownerId') ownerId: string,
   ): Promise<List> {
+    console.log(name, ownerId);
     return this.listsService.createList(name, ownerId);
+  }
+
+  @Get('by-user/:id')
+  async getListsByOwnerId(@Param('id') id: string): Promise<List[]> {
+    return this.listsService.getAllListsByOwnerId(id);
   }
 
   @Get()

@@ -8,10 +8,10 @@ import {
 
 import { useDispatch } from "react-redux";
 
-import { removeTaskList } from "@/app/store/todo-slice/todo-lists-slice";
 import { useState } from "react";
 import { useList } from "@/app/list-provider/list-provider";
-import { addRemoveActivity } from "@/app/store/activity-slice/activity-slice";
+import { AppDispatch } from "@/app/store/store";
+import { fetchDeleteTodoList } from "@/app/store/todo-slice/thunks";
 
 export default function RemoveListForm({
   children,
@@ -20,7 +20,7 @@ export default function RemoveListForm({
   children: React.ReactNode;
   selector?: string;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { id: listId } = useList();
 
@@ -46,7 +46,7 @@ export default function RemoveListForm({
           <Button
             className="w-1/2"
             onClick={() => {
-              dispatch(removeTaskList({ listId }));
+              dispatch(fetchDeleteTodoList({ id: listId }));
 
               setIsOpen(false);
             }}

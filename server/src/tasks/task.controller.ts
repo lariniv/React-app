@@ -15,7 +15,9 @@ export class TasksController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  createTask(@Body() data: Prisma.TaskCreateInput): Promise<Task> {
+  createTask(
+    @Body() data: Prisma.TaskCreateInput,
+  ): Promise<Task & { listId: string }> {
     data.dueDate = new Date(data.dueDate);
     return this.taskService.create(data);
   }
@@ -31,8 +33,13 @@ export class TasksController {
   }
 
   @Delete(':id')
-  deleteTask(@Param('id') id: string): Promise<Task> {
-    return this.taskService.deleteTask({ id: id });
+  async deleteTask(
+    @Param('id') id: string,
+  ): Promise<{ id: string; listId: string }> {
+    const { id: taskId, listId } = await this.taskService.deleteTask({
+      id: id,
+    });
+    return { id: taskId, listId };
   }
 
   @Get('/get-by-list/:listId')
@@ -43,11 +50,11 @@ export class TasksController {
   @Patch(':id')
   updateTask(
     @Param('id') id: string,
-    @Body() updateTaskDto: Prisma.TaskUpdateInput,
+    @Body() data: Prisma.TaskUpdateInput,
   ): Promise<Task> {
     return this.taskService.updateTask({
       where: { id: id },
-      data: updateTaskDto,
+      data,
     });
   }
 }

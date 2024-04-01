@@ -21,18 +21,19 @@ import { useDispatch } from "react-redux";
 import {
   Task,
   TaskDto,
-  editTask,
+  priority,
 } from "@/app/store/todo-slice/todo-lists-slice";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useList } from "@/app/list-provider/list-provider";
 import {
   addEditActivity,
   addRenameActivity,
 } from "@/app/store/activity-slice/activity-slice";
 import { useState } from "react";
+import { AppDispatch } from "@/app/store/store";
+import { fetchUpdateTodo } from "@/app/store/todo-slice/thunks/fetch-update-todo";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Title is required" }),
@@ -50,7 +51,7 @@ export default function EditCardForm({
   selector?: string;
   task: Task;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const {
     id: taskId,
@@ -59,8 +60,6 @@ export default function EditCardForm({
     priority: taskPriority,
     dueDate: taskDueDate,
   } = task;
-
-  const { id: listId } = useList();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -125,7 +124,7 @@ export default function EditCardForm({
     }
 
     if (priority && priority !== task.priority) {
-      task.priority = priority as "low" | "medium" | "high";
+      task.priority = priority as priority;
 
       dispatch(
         addEditActivity({
@@ -141,7 +140,7 @@ export default function EditCardForm({
 
     if (Object.keys(task).length === 0) return;
 
-    dispatch(editTask({ listId, taskId, task }));
+    dispatch(fetchUpdateTodo({ id: taskId, data: { ...task } }));
 
     setIsOpen(false);
 

@@ -22,8 +22,9 @@ import { useDispatch } from "react-redux";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { editTaskList } from "@/app/store/todo-slice/todo-lists-slice";
 import { useList } from "@/app/list-provider/list-provider";
+import { AppDispatch } from "@/app/store/store";
+import { fetchUpdateTodoList } from "@/app/store/todo-slice/thunks";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -36,7 +37,7 @@ export default function EditListForm({
   children: React.ReactNode;
   selector?: string;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { id: listId, name } = useList();
 
@@ -50,7 +51,7 @@ export default function EditListForm({
   function onSubmit(value: z.infer<typeof formSchema>) {
     const name = value.name;
 
-    dispatch(editTaskList({ listId, name }));
+    dispatch(fetchUpdateTodoList({ id: listId, data: { name } }));
 
     form.reset();
   }

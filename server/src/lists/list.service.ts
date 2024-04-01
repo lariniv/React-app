@@ -19,6 +19,14 @@ export class ListsService {
     return this.prisma.list.findMany();
   }
 
+  async getAllListsByOwnerId(ownerId: string): Promise<List[]> {
+    return this.prisma.list.findMany({
+      where: {
+        ownerId,
+      },
+    });
+  }
+
   async getListById(id: string): Promise<List> {
     return this.prisma.list.findUnique({
       where: {

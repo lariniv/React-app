@@ -19,18 +19,19 @@ import {
 
 import { Plus } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { addTaskList } from "@/app/store/todo-slice/todo-lists-slice";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { AppDispatch } from "@/app/store/store";
+import { fetchAddTodoList } from "@/app/store/todo-slice/thunks";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
 });
 
 export default function CreateListForm() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,7 +43,11 @@ export default function CreateListForm() {
   function onSubmit(value: z.infer<typeof formSchema>) {
     const name = value.name;
 
-    dispatch(addTaskList({ name }));
+    const token = localStorage.getItem("token") as string;
+
+    if (token) {
+      dispatch(fetchAddTodoList({ name, ownerId: token }));
+    }
 
     form.reset();
   }
