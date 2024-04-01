@@ -1,5 +1,4 @@
-import { RootState } from "@/app/store/store";
-import { Task, moveTask } from "@/app/store/todo-slice/todo-lists-slice";
+import { AppDispatch, RootState } from "@/app/store/store";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -18,17 +17,22 @@ import { Calendar, ChevronDown } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import TaskCardMenu from "./components/TaskCardMenu";
 import { useList } from "@/app/list-provider/list-provider";
-import { addMoveActivity } from "@/app/store/activity-slice/activity-slice";
+import { fetchUpdateTodo } from "@/app/store/todo-slice/thunks/fetch-update-todo";
+import { Task } from "@/app/store/todo-slice/types/task-type";
+import { priority } from "@/app/store/todo-slice/types/priority-enum";
+import { MoveActivity } from "@/app/store/activity-slice/activity-slice";
+import { fetchAddActivity } from "@/app/store/activity-slice/thunks/fetch-add-activity";
+import { moveTodo } from "@/app/store/todo-slice/todo-lists-slice";
 
 export default function TaskCard({
   name,
   description,
   dueDate,
-  priority,
-  id,
+  priority: priorityValue,
+  id: taskId,
 }: Task) {
   const { id: listId } = useList();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const taskLists = useSelector((state: RootState) => state.todo.taskLists);
   const { name: listName } = taskLists.find((list) => list.id === listId)!;
   return (
@@ -53,7 +57,7 @@ export default function TaskCard({
           <div className="flex items-center gap-1">
             <Calendar size={18} />
             <p>
-              {dueDate.toLocaleDateString("en-UA", {
+              {new Date(dueDate).toLocaleDateString("en-UA", {
                 weekday: "short",
                 day: "numeric",
                 month: "long",
@@ -65,13 +69,15 @@ export default function TaskCard({
             <div className="grid grid-cols-[6px_1fr] items-center gap-2 rounded-lg bg-black/10 w-fit px-4">
               <div
                 className={`w-full aspect-square ${
-                  priority === "low" ? "bg-black/25" : ""
-                } ${priority === "medium" ? "bg-black/50" : ""} ${
-                  priority === "high" ? "bg-black/85" : ""
+                  priorityValue ? "" : "bg-black/25"
+                } ${priorityValue === priority.low ? "bg-black/25" : ""} ${
+                  priorityValue === priority.medium ? "bg-black/50" : ""
+                } ${
+                  priorityValue === priority.high ? "bg-black/85" : ""
                 } rounded-full`}
               />
               <div className="font-semibold text-black/80 capitalize">
-                {priority}
+                {priorityValue.toLowerCase()}
               </div>
             </div>
           </div>
@@ -94,21 +100,33 @@ export default function TaskCard({
                   if (list.id === listId) return;
 
                   dispatch(
-                    moveTask({
-                      taskId: id,
+                    fetchUpdateTodo({ id: taskId, data: { listId: list.id } })
+                  );
+
+                  dispatch(
+                    moveTodo({
+                      taskId,
                       targetListId: list.id,
                       sourceListId: listId,
                     })
                   );
 
+                  const activityPayload: MoveActivity = {
+                    date: new Date(),
+                    taskId: taskId,
+                    targetList: list.name,
+                    sourceList: listName,
+                    type: "MOVE",
+                    taskName: name,
+                  };
+
+                  console.log("taskid", activityPayload);
+                  const ownerId = localStorage.getItem("token")!;
+
+                  if (!ownerId) return;
+
                   dispatch(
-                    addMoveActivity({
-                      taskId: id,
-                      targetList: list.name,
-                      sourcelList: listName,
-                      type: "move",
-                      taskName: name,
-                    })
+                    fetchAddActivity({ activityData: activityPayload, ownerId })
                   );
                 }}
               >

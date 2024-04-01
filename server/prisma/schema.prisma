@@ -25,15 +25,27 @@ model Task {
   dueDate     DateTime
   priority    TaskPriority
   listId      String
-  List        List         @relation(fields: [listId], references: [id])
+  List        List         @relation(fields: [listId], references: [id], onDelete: Cascade)
   activities  Activity[]
 }
 
 model List {
-  id      String @id @default(cuid())
-  name    String
-  tasks   Task[]
-  ownerId String @default("1")
+  id           String         @id @default(cuid())
+  name         String
+  tasks        Task[]
+  ownerId      String         @default("1")
+  ListActivity ListActivity[]
+}
+
+model ListActivity {
+  id       String       @id @default(uuid())
+  date     DateTime     @default(now())
+  listId   String
+  taskName String
+  listName String?
+  type     ActivityType
+  ownerId  String       @default("1")
+  List     List         @relation(fields: [listId], references: [id], onDelete: Cascade)
 }
 
 model Activity {
@@ -47,9 +59,9 @@ model Activity {
   listName     String?
   initialValue String?
   changedValue String?
-  editedField  String?
+  edittedField String?
   type         ActivityType
-  Task         Task         @relation(fields: [taskId], references: [id])
+  Task         Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
 
 generator client {

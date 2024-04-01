@@ -18,21 +18,22 @@ import {
 } from "@/shared/components/ui/form";
 
 import { useDispatch } from "react-redux";
-import {
-  Task,
-  TaskDto,
-  editTask,
-} from "@/app/store/todo-slice/todo-lists-slice";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useList } from "@/app/list-provider/list-provider";
-import {
-  addEditActivity,
-  addRenameActivity,
-} from "@/app/store/activity-slice/activity-slice";
+
 import { useState } from "react";
+import { AppDispatch } from "@/app/store/store";
+import { fetchUpdateTodo } from "@/app/store/todo-slice/thunks/fetch-update-todo";
+import { Task } from "@/app/store/todo-slice/types/task-type";
+import { priority } from "@/app/store/todo-slice/types/priority-enum";
+import { TaskDto } from "@/app/store/todo-slice/types/task-dto";
+import {
+  EditActivity,
+  RenameActivity,
+} from "@/app/store/activity-slice/activity-slice";
+import { fetchAddActivity } from "@/app/store/activity-slice/thunks/fetch-add-activity";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Title is required" }),
@@ -50,7 +51,7 @@ export default function EditCardForm({
   selector?: string;
   task: Task;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const {
     id: taskId,
@@ -60,88 +61,108 @@ export default function EditCardForm({
     dueDate: taskDueDate,
   } = task;
 
-  const { id: listId } = useList();
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: taskName,
       description: taskDescription,
-      dueDate: taskDueDate.toISOString().split("T")[0],
-      priority: "",
+      dueDate: new Date(taskDueDate).toISOString().split("T")[0],
+      priority: "low",
     },
   });
 
   function onSubmit(value: z.infer<typeof formSchema>) {
     const name = value.name;
     const description = value.description;
-    const priority = value.priority;
+    let priorityValue = value.priority;
     const dueDate = value.dueDate;
 
-    let task = {} as Partial<TaskDto>;
+    if (priorityValue === "low") priorityValue = priority.low;
+    if (priorityValue === "medium") priorityValue = priority.medium;
+    if (priorityValue === "high") priorityValue = priority.high;
+
+    const task = {} as Partial<TaskDto>;
+
+    const ownerId = localStorage.getItem("token");
+    if (!ownerId) return;
 
     if (name && name !== taskName) {
       task.name = name;
 
+      const renameActivityPayload: RenameActivity = {
+        taskId,
+        date: new Date(),
+        taskName,
+        initialValue: taskName,
+        changedValue: name,
+        type: "RENAME",
+      };
+
       dispatch(
-        addRenameActivity({
-          taskId,
-          taskName,
-          initialValue: taskName,
-          changedValue: name,
-          type: "rename",
-        })
+        fetchAddActivity({ activityData: renameActivityPayload, ownerId })
       );
     }
 
     if (description && description !== taskDescription) {
       task.description = description;
 
+      const editActivityPayload: EditActivity = {
+        taskId,
+        taskName,
+        date: new Date(),
+        edittedField: "description",
+        initialValue: taskDescription,
+        changedValue: description,
+        type: "EDIT",
+      };
+
       dispatch(
-        addEditActivity({
-          taskId,
-          taskName,
-          edittedField: "description",
-          inititalValue: taskDescription,
-          changedValue: description,
-          type: "edit",
-        })
+        fetchAddActivity({ activityData: editActivityPayload, ownerId })
       );
     }
 
-    if (dueDate && new Date(dueDate).getTime() !== taskDueDate.getTime()) {
+    if (
+      dueDate &&
+      new Date(dueDate).getTime() !== new Date(taskDueDate).getTime()
+    ) {
       task.dueDate = new Date(dueDate);
 
+      const editActivityPayload: EditActivity = {
+        taskId,
+        taskName,
+        date: new Date(),
+        edittedField: "dueDate",
+        initialValue: taskDueDate,
+        changedValue: dueDate,
+        type: "EDIT",
+      };
+
       dispatch(
-        addEditActivity({
-          taskId,
-          taskName: taskName,
-          edittedField: "dueDate",
-          type: "edit",
-          inititalValue: taskDueDate,
-          changedValue: dueDate,
-        })
+        fetchAddActivity({ activityData: editActivityPayload, ownerId })
       );
     }
 
-    if (priority && priority !== task.priority) {
-      task.priority = priority as "low" | "medium" | "high";
+    if (priorityValue && priorityValue !== taskPriority) {
+      task.priority = priorityValue as priority;
+
+      const editActivityPayload: EditActivity = {
+        taskId,
+        taskName,
+        date: new Date(),
+        edittedField: "priority",
+        initialValue: taskPriority,
+        changedValue: priorityValue,
+        type: "EDIT",
+      };
 
       dispatch(
-        addEditActivity({
-          taskId,
-          taskName,
-          edittedField: "priority",
-          inititalValue: taskPriority,
-          changedValue: priority,
-          type: "edit",
-        })
+        fetchAddActivity({ activityData: editActivityPayload, ownerId })
       );
     }
 
     if (Object.keys(task).length === 0) return;
 
-    dispatch(editTask({ listId, taskId, task }));
+    dispatch(fetchUpdateTodo({ id: taskId, data: { ...task } }));
 
     setIsOpen(false);
 
@@ -208,7 +229,9 @@ export default function EditCardForm({
                   <FormControl>
                     <Input
                       type="date"
-                      defaultValue={taskDueDate.toISOString().split("T")[0]}
+                      defaultValue={
+                        new Date(taskDueDate).toISOString().split("T")[0]
+                      }
                       {...field}
                     />
                   </FormControl>
@@ -228,22 +251,28 @@ export default function EditCardForm({
                     <select
                       {...field}
                       className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
-                      defaultValue={"low"}
+                      defaultValue={"Select priority"}
                     >
                       <option
+                        disabled
                         className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                      >
+                        Select priority
+                      </option>
+                      <option
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                         value="low"
                       >
                         Low
                       </option>
                       <option
-                        className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                         value="medium"
                       >
                         Medium
                       </option>
                       <option
-                        className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                         value="high"
                       >
                         High

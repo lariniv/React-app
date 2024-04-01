@@ -8,11 +8,12 @@ import {
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { removeTask } from "@/app/store/todo-slice/todo-lists-slice";
 import { useState } from "react";
 import { useList } from "@/app/list-provider/list-provider";
-import { addRemoveActivity } from "@/app/store/activity-slice/activity-slice";
-import { RootState } from "@/app/store/store";
+import { AppDispatch, RootState } from "@/app/store/store";
+import { fetchDeleteTodo } from "@/app/store/todo-slice/thunks/fetch-delete-todo";
+import { RemoveActivity } from "@/app/store/activity-slice/activity-slice";
+import { fetchAddActivity } from "@/app/store/activity-slice/thunks/fetch-add-activity";
 
 export default function RemoveTaskForm({
   children,
@@ -23,7 +24,7 @@ export default function RemoveTaskForm({
   taskId: string;
   selector?: string;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { id: listId } = useList();
 
@@ -55,15 +56,26 @@ export default function RemoveTaskForm({
           <Button
             className="w-1/2"
             onClick={() => {
+              const removeAcitityPayload: RemoveActivity = {
+                date: new Date(),
+                taskId,
+                taskName: name,
+                targetList: listId,
+                type: "REMOVE",
+              };
+
+              const ownerId = localStorage.getItem("token");
+
+              if (!ownerId) return;
+
               dispatch(
-                addRemoveActivity({
-                  taskId,
-                  targetList: listId,
-                  type: "remove",
-                  taskName: name,
+                fetchAddActivity({
+                  activityData: removeAcitityPayload,
+                  ownerId,
                 })
               );
-              dispatch(removeTask({ listId, taskId }));
+
+              dispatch(fetchDeleteTodo({ id: taskId }));
               setIsOpen(false);
             }}
           >

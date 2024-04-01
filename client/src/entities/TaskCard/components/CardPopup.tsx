@@ -4,7 +4,6 @@ import {
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
 
-import { Task } from "@/app/store/todo-slice/todo-lists-slice";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Calendar, Crosshair, Edit, Tag } from "lucide-react";
@@ -13,7 +12,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store/store";
 import { useMemo, useState } from "react";
 import EditCardPopupForm from "./CardPopupForm";
-import SmallActivityItem from "@/pages/Home/SmallActivityItem";
+import SmallActivityItem from "@/pages/Home/components/SmallActivityItem";
+import { Task } from "@/app/store/todo-slice/types/task-type";
 
 export default function EditCardForm({
   children,
@@ -81,7 +81,7 @@ export default function EditCardForm({
                     Due date
                   </div>
                   <div className="w-1/2 font-semibold">
-                    {dueDate.toLocaleDateString("en-UA", {
+                    {new Date(dueDate).toLocaleDateString("en-UA", {
                       weekday: "short",
                       day: "numeric",
                       month: "long",
@@ -95,7 +95,8 @@ export default function EditCardForm({
                     Priority
                   </div>
                   <div className="w-1/2 capitalize font-semibold">
-                    {priority}
+                    {priority.slice(0, 1).toUpperCase() +
+                      priority.slice(1).toLowerCase()}
                   </div>
                 </div>
               </div>

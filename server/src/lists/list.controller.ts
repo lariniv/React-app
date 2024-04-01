@@ -22,6 +22,11 @@ export class ListsController {
     return this.listsService.createList(name, ownerId);
   }
 
+  @Get('by-user/:id')
+  async getListsByOwnerId(@Param('id') id: string): Promise<List[]> {
+    return this.listsService.getAllListsByOwnerId(id);
+  }
+
   @Get()
   async getLists(): Promise<List[]> {
     return this.listsService.getAllLists();

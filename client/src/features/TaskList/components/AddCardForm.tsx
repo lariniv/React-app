@@ -18,19 +18,23 @@ import {
 } from "@/shared/components/ui/form";
 
 import { useDispatch, useSelector } from "react-redux";
-import { Task, addTask } from "@/app/store/todo-slice/todo-lists-slice";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useList } from "@/app/list-provider/list-provider";
-import { addAddActivity } from "@/app/store/activity-slice/activity-slice";
-import { RootState } from "@/app/store/store";
+import { AddActivity } from "@/app/store/activity-slice/activity-slice";
+import { AppDispatch, RootState } from "@/app/store/store";
+import { fetchAddTodo } from "@/app/store/todo-slice/thunks/fetch-add-todo";
+import { priority } from "@/app/store/todo-slice/types/priority-enum";
+import { TaskDto } from "@/app/store/todo-slice/types/task-dto";
+import { fetchAddActivity } from "@/app/store/activity-slice/thunks/fetch-add-activity";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Title is required" }),
   description: z.string().min(1, { message: "Name is required" }),
   priority: z.string(),
+  dueDate: z.string(),
 });
 
 export default function AddCardForm({
@@ -40,7 +44,7 @@ export default function AddCardForm({
   children: React.ReactNode;
   selector?: string;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const { id: listId } = useList();
 
@@ -54,31 +58,47 @@ export default function AddCardForm({
       name: "",
       description: "",
       priority: "",
+      dueDate: "",
     },
   });
 
   function onSubmit(value: z.infer<typeof formSchema>) {
     const name = value.name;
     const description = value.description;
-    const id = new Date().toString();
-    const dueDate = new Date();
-    let priority = value.priority as "low" | "medium" | "high";
+    const dueDate = new Date(value.dueDate);
+    let priorityValue = value.priority;
 
-    if (priority !== "low" && priority !== "medium" && priority !== "high") {
-      priority = "low";
+    if (priorityValue === "low") {
+      priorityValue = priority.low;
+    } else if (priorityValue === "medium") {
+      priorityValue = priority.medium;
+    } else if (priorityValue === "high") {
+      priorityValue = priority.high;
     }
 
-    const task: Task = { name, description, priority, id, dueDate };
+    const ownerId = localStorage.getItem("token");
+    if (!ownerId) return;
 
-    dispatch(addTask({ listId, task }));
+    const task: TaskDto = {
+      name,
+      description,
+      priority: priorityValue as priority,
+      dueDate,
+      listId,
+    };
+
+    dispatch(fetchAddTodo({ taskData: task }));
+
+    const addActivityPayload: AddActivity = {
+      date: new Date(),
+      taskId: listId,
+      taskName: name,
+      listName: list?.name as string,
+      type: "ADD",
+    };
 
     dispatch(
-      addAddActivity({
-        listName: list?.name as string,
-        type: "add",
-        taskId: id,
-        taskName: name,
-      })
+      fetchAddActivity({ activityData: addActivityPayload, ownerId, listId })
     );
 
     form.reset();
@@ -121,6 +141,21 @@ export default function AddCardForm({
                     <Input placeholder="Description" {...field} />
                   </FormControl>
                   <FormDescription>Describe your task</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Due date</FormLabel>
+                  <FormControl>
+                    <Input type="date" placeholder="dueDate" {...field} />
+                  </FormControl>
+                  <FormDescription>Set due date</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

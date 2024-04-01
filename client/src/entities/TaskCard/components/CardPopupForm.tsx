@@ -11,25 +11,25 @@ import {
 } from "@/shared/components/ui/form";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Task,
-  TaskDto,
-  editTask,
-  moveTask,
-} from "@/app/store/todo-slice/todo-lists-slice";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useList } from "@/app/list-provider/list-provider";
 import { Calendar, Crosshair, Edit, Tag } from "lucide-react";
-import { RootState } from "@/app/store/store";
+import { AppDispatch, RootState } from "@/app/store/store";
 import { Textarea } from "@/shared/components/ui/textarea";
+
+import { fetchUpdateTodo } from "@/app/store/todo-slice/thunks/fetch-update-todo";
+import { Task } from "@/app/store/todo-slice/types/task-type";
+import { priority } from "@/app/store/todo-slice/types/priority-enum";
+import { TaskDto } from "@/app/store/todo-slice/types/task-dto";
 import {
-  addEditActivity,
-  addMoveActivity,
-  addRenameActivity,
+  EditActivity,
+  MoveActivity,
+  RenameActivity,
 } from "@/app/store/activity-slice/activity-slice";
+import { fetchAddActivity } from "@/app/store/activity-slice/thunks/fetch-add-activity";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Title is required" }),
@@ -46,7 +46,7 @@ export default function EditCardPopupForm({
   task: Task;
   callback: () => void;
 }) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const {
     id: taskId,
@@ -65,7 +65,7 @@ export default function EditCardPopupForm({
     defaultValues: {
       name: taskName,
       description: taskDescription,
-      dueDate: taskDueDate.toISOString().split("T")[0],
+      dueDate: new Date(taskDueDate).toISOString().split("T")[0],
       status: listId,
       priority: taskPriority,
     },
@@ -74,87 +74,108 @@ export default function EditCardPopupForm({
   function onSubmit(value: z.infer<typeof formSchema>) {
     const name = value.name;
     const description = value.description;
-    const priority = value.priority;
+    let priorityValue = value.priority;
     const dueDate = value.dueDate;
     const status = value.status;
 
-    let task = {} as Partial<TaskDto>;
+    if (priorityValue === "low") priorityValue = priority.low;
+    if (priorityValue === "medium") priorityValue = priority.medium;
+    if (priorityValue === "high") priorityValue = priority.high;
+
+    const task = {} as Partial<TaskDto>;
+
+    const ownerId = localStorage.getItem("token");
+
+    if (!ownerId) return;
 
     if (name && name !== taskName) {
       task.name = name;
+      const renameActivityPayload: RenameActivity = {
+        taskId,
+        date: new Date(),
+        taskName,
+        changedValue: name,
+        initialValue: taskName,
+        type: "RENAME",
+      };
       dispatch(
-        addRenameActivity({
-          taskId,
-          taskName,
-          changedValue: name,
-          initialValue: taskName,
-          type: "rename",
-        })
+        fetchAddActivity({ activityData: renameActivityPayload, ownerId })
       );
     }
 
     if (description && description !== taskDescription) {
       task.description = description;
+      const editActivityPayload: EditActivity = {
+        taskId,
+        date: new Date(),
+        taskName,
+        edittedField: "description",
+        initialValue: taskDescription,
+        changedValue: description,
+        type: "EDIT",
+      };
       dispatch(
-        addEditActivity({
-          taskId,
-          taskName: taskName,
-          edittedField: "description",
-          type: "edit",
-          inititalValue: taskDescription,
-          changedValue: description,
-        })
+        fetchAddActivity({ activityData: editActivityPayload, ownerId })
       );
     }
 
-    if (priority && priority !== taskPriority) {
-      task.priority = priority as "low" | "medium" | "high";
+    if (priorityValue && priorityValue !== taskPriority) {
+      task.priority = priorityValue as priority;
+
+      const editActivityPayload: EditActivity = {
+        taskId,
+        date: new Date(),
+        taskName,
+        edittedField: "priority",
+        initialValue: taskPriority,
+        changedValue: priorityValue,
+        type: "EDIT",
+      };
       dispatch(
-        addEditActivity({
-          taskId,
-          taskName: taskName,
-          edittedField: "priority",
-          type: "edit",
-          inititalValue: taskPriority,
-          changedValue: priority,
-        })
+        fetchAddActivity({ activityData: editActivityPayload, ownerId })
       );
     }
 
-    if (dueDate && new Date(dueDate).getTime() !== taskDueDate.getTime()) {
+    if (
+      dueDate &&
+      new Date(dueDate).getTime() !== new Date(taskDueDate).getTime()
+    ) {
       task.dueDate = new Date(dueDate);
 
+      const editActivityPayload: EditActivity = {
+        taskId,
+        date: new Date(),
+        taskName,
+        edittedField: "dueDate",
+        initialValue: taskDueDate,
+        changedValue: dueDate,
+        type: "EDIT",
+      };
       dispatch(
-        addEditActivity({
-          taskId,
-          taskName: taskName,
-          edittedField: "dueDate",
-          type: "edit",
-          inititalValue: taskDueDate,
-          changedValue: dueDate,
-        })
+        fetchAddActivity({ activityData: editActivityPayload, ownerId })
       );
     }
 
     if (Object.keys(task).length === 0) return;
 
-    dispatch(editTask({ listId, taskId, task }));
+    dispatch(fetchUpdateTodo({ id: taskId, data: { ...task } }));
 
     if (status && status !== listId) {
-      dispatch(
-        moveTask({ sourceListId: listId, taskId, targetListId: status })
-      );
+      dispatch(fetchUpdateTodo({ id: taskId, data: { listId: status } }));
+
+      const moveActivityPayload: MoveActivity = {
+        taskId,
+        date: new Date(),
+        taskName,
+        sourceList: taskLists.find((list) => list.id === listId)
+          ?.name as string,
+        targetList: taskLists.find((list) => list.id === status)
+          ?.name as string,
+        type: "MOVE",
+      };
 
       dispatch(
-        addMoveActivity({
-          taskId,
-          taskName,
-          sourcelList: taskLists.find((list) => list.id === listId)
-            ?.name as string,
-          targetList: taskLists.find((list) => list.id === status)
-            ?.name as string,
-          type: "move",
-        })
+        fetchAddActivity({ activityData: moveActivityPayload, ownerId })
       );
     }
 
@@ -241,7 +262,9 @@ export default function EditCardPopupForm({
                     <Input
                       className="w-1/2 font-semibold py-0.5 px-3.5"
                       type="date"
-                      defaultValue={taskDueDate.toISOString().split("T")[0]}
+                      defaultValue={
+                        new Date(taskDueDate).toISOString().split("T")[0]
+                      }
                       {...field}
                     />
                   </div>
