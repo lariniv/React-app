@@ -7,11 +7,11 @@ A step-by-step series of examples that tell you how to get a development environ
 
 #### Backend Setup
 
-#Naviagte to server directory
+## Naviagte to server directory
 ```bash
 cd server
 ```
-#Install dependanciies
+## Install dependanciies
 ```bash
 yarn install
 ```
@@ -19,12 +19,12 @@ or
 ```bash
 npm install
 ```
-#Initialize prisma
+## Initialize prisma
 ```bash
 npx prisma migrate dev
 ```
 
-#Start the server
+## Start the server
 ```bash
 yarn start:dev
 ```
@@ -35,12 +35,12 @@ npm run start:dev
 ```
 
 ### Frontend Setup
-#Navigate to client directory
+## Navigate to client directory
 ```bash
 cd client
 ```
 
-#Install dependacies
+## Install dependacies
 ```bash
 yarn install
 ```
@@ -50,7 +50,7 @@ or
 ```bash
 npm install
 ```
-#Start the server
+## Start the server
 ```bash
 yarn dev
 ```
