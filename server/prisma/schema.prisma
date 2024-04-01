@@ -4,29 +4,52 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-model List {
-  id    String @id @default(cuid())
-  title String
-  todos ToDo[] @relation("ListToDos")
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
 }
 
-model ToDo {
-  id          String   @id @default(cuid())
-  title       String
+enum ActivityType {
+  MOVE
+  ADD
+  REMOVE
+  EDIT
+  RENAME
+}
+
+model Task {
+  id          String       @id @default(cuid())
+  name        String
   description String
   dueDate     DateTime
-  status      String
-  priority    String
-  list        List     @relation("ListToDos", fields: [listId], references: [id])
+  priority    TaskPriority
   listId      String
-  ownerId     String
+  List        List         @relation(fields: [listId], references: [id], onDelete: Cascade)
+  activities  Activity[]
+}
+
+model List {
+  id      String @id @default(cuid())
+  name    String
+  tasks   Task[]
+  ownerId String @default("1")
 }
 
 model Activity {
-  id      String @id @default(cuid())
-  ownerid String
-  todoid  String
-  text    String
+  id           String       @id @default(uuid())
+  date         DateTime     @default(now())
+  taskId       String
+  ownerId      String       @default("1")
+  taskName     String
+  sourceList   String?
+  targetList   String?
+  listName     String?
+  initialValue String?
+  changedValue String?
+  editedField  String?
+  type         ActivityType
+  Task         Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
 }
 
 generator client {

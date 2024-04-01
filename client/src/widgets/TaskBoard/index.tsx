@@ -1,19 +1,22 @@
-import { RootState } from "@/app/store";
+import { ListProvider } from "@/app/list-provider/list-provider";
+import { RootState } from "@/app/store/store";
 import { TaskList } from "@/features";
 import { useSelector } from "react-redux";
 
 export default function TaskBoard() {
-  const taskLists = useSelector((state: RootState) => state.taskLists);
+  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
   return (
-    <div className="w-full grid grid-cols-4 gap-12">
-      {taskLists.map((list) => (
-        <TaskList
-          key={list.id}
-          title={list.name}
-          totalTaskAmount={list.tasks.length}
-          taskArray={list.tasks}
-        />
-      ))}
+    <div className={`w-full grid grid-cols-4 gap-6`}>
+      {taskLists &&
+        taskLists.map((list) => (
+          <ListProvider value={list} key={list.id}>
+            <TaskList
+              title={list.name}
+              totalTaskAmount={list.tasks.length}
+              taskArray={list.tasks}
+            />
+          </ListProvider>
+        ))}
     </div>
   );
 }
