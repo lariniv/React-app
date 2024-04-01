@@ -12,8 +12,7 @@ class TodoListService {
 
   async getAllTodoListsByOwnerId(
     ownerId: string
-  ): Promise<AxiosResponse<TaskListType[]>> {
-    console.log(ownerId);
+  ): Promise<AxiosResponse<{ id: string; name: string; ownerId: string }[]>> {
     return await $api.get(`/lists/by-user/${ownerId}`);
   }
 

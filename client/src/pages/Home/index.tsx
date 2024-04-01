@@ -1,6 +1,6 @@
-import CreateListForm from "./CreateListForm";
+import CreateListForm from "./components/CreateListForm";
 import { TaskBoard } from "@/widgets";
-import HistorySidebar from "./HistorySidebar";
+import HistorySidebar from "./components/HistorySidebar";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { fetchGetAllTodoListsByOwnerId } from "@/app/store/todo-slice/thunks";

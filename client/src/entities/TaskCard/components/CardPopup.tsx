@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/app/store/store";
 import { useMemo, useState } from "react";
 import EditCardPopupForm from "./CardPopupForm";
-import SmallActivityItem from "@/pages/Home/SmallActivityItem";
+import SmallActivityItem from "@/pages/Home/components/SmallActivityItem";
 
 export default function EditCardForm({
   children,

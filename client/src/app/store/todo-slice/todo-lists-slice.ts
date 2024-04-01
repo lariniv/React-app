@@ -225,6 +225,7 @@ export const taskListSlice = createSlice({
     });
 
     builder.addCase(fetchAddTodoList.fulfilled, (state, action) => {
+      console.log("Adde todo lit", action.payload);
       state.taskLists.push({
         id: action.payload.id,
         name: action.payload.name,

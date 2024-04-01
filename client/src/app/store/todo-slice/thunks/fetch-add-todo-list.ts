@@ -10,9 +10,11 @@ export const fetchAddTodoList = createAsyncThunk(
     try {
       const response = await todoListService.addTodoList({ name, ownerId });
 
-      if (response.status !== 200) {
+      if (response.status !== 201) {
         return rejectWithValue(response.data);
       }
+
+      console.log("Fetch add todo list", response.data);
 
       return response.data;
     } catch (err) {
