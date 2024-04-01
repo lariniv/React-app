@@ -1,9 +1,9 @@
 import { Edit, EllipsisVertical, Info, Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import EditCardForm from "./EditTaskForm";
-import { Task } from "@/app/store/todo-slice/todo-lists-slice";
 import RemoveTaskForm from "./RemoveTaskForm";
 import CardPopup from "./CardPopup";
+import { Task } from "@/app/store/todo-slice/types/task-type";
 
 export default function TaskCardMenu({ task }: { task: Task }) {
   const [isOpen, setIsOen] = useState(false);

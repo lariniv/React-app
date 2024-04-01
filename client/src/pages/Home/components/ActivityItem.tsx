@@ -1,18 +1,45 @@
 import { Activity } from "@/app/store/activity-slice/activity-slice";
+import { RootState } from "@/app/store/store";
+import { TaskListType } from "@/app/store/todo-slice/types/task-list-type";
+import { useSelector } from "react-redux";
 
 export default function ActivityItem({ activity }: { activity: Activity }) {
+  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+
   function ParseAction() {
+    let targetList: TaskListType | undefined;
+
+    if (activity.type === "REMOVE") {
+      targetList = taskLists.find((list) => list.id === activity.targetList);
+    }
+
     switch (activity.type) {
-      case "move":
+      case "MOVE":
         return (
           <div>
-            You moved this task from <b>{activity.sourcelList}</b> to{" "}
-            <b>{activity.targetList}</b>
+            You moved <b>{activity.taskName}</b> from{" "}
+            <b>{activity.sourceList}</b> to <b>{activity.targetList}</b>
           </div>
         );
-      case "add":
-        return <div>You created this task</div>;
-      case "edit":
+      case "ADD":
+        return (
+          <div>
+            You added <b>{activity.taskName}</b> to the{" "}
+            <b>{activity.listName}</b>
+          </div>
+        );
+      case "REMOVE":
+        return (
+          <div>
+            You removed <b>{activity.taskName}</b>{" "}
+            {targetList?.name && (
+              <>
+                from <b>{targetList?.name}</b>
+              </>
+            )}
+          </div>
+        );
+      case "EDIT":
         return (
           <div>
             You changed the{" "}
@@ -43,10 +70,10 @@ export default function ActivityItem({ activity }: { activity: Activity }) {
             </b>
           </div>
         );
-      case "rename":
+      case "RENAME":
         return (
           <div>
-            You renamed this task from <b>{activity.initialValue}</b> to{" "}
+            You renamed <b>{activity.initialValue}</b> to{" "}
             <b>{activity.changedValue}</b>
           </div>
         );
@@ -54,21 +81,21 @@ export default function ActivityItem({ activity }: { activity: Activity }) {
   }
 
   return (
-    <li className="w-full gap-2 text-xs grid grid-cols-[2fr,1fr]">
-      <div className="text-start grid grid-cols-[8px,1fr] items-center gap-4">
-        <div className="rounded-full mx-auto w-1 h-1 bg-black/50" />
+    <div className="w-full clear-start flex flex-col items-start gap-2">
+      <div className="text-start grid grid-cols-[12px,1fr] items-center gap-4 text-sm">
+        <div className="rounded-full mx-auto w-1.5 h-1.5 bg-black/50" />
         {ParseAction()}
       </div>
-      <i className="pl-4">
-        {activity.date.toLocaleDateString("en-UA", {
+      <i className="pl-7 text-sm">
+        {new Date(activity.date).toLocaleDateString("en-UA", {
           day: "numeric",
           month: "long",
         })}{" "}
-        at {activity.date.getHours()}:
-        {activity.date.getMinutes() > 10
-          ? `${activity.date.getMinutes()}`
-          : `0${activity.date.getMinutes()}`}
+        at {new Date(activity.date).getHours()}:
+        {new Date(activity.date).getMinutes() > 10
+          ? `${new Date(activity.date).getMinutes()}`
+          : `0${new Date(activity.date).getMinutes()}`}
       </i>
-    </li>
+    </div>
   );
 }

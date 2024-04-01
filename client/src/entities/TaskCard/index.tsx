@@ -36,7 +36,15 @@ export default function TaskCard({
       <CardHeader>
         <CardTitle className="flex items-center justify-between w-full">
           <span className="max-w-[90%] overflow-clip">{name}</span>
-          <TaskCardMenu task={{ name, description, dueDate, priority, id }} />
+          <TaskCardMenu
+            task={{
+              name,
+              description,
+              dueDate,
+              priority: priorityValue,
+              id: taskId,
+            }}
+          />
         </CardTitle>
       </CardHeader>
       <CardContent>
