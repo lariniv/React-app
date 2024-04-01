@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import taskService from "../todo-service";
-import { TaskDto } from "../todo-lists-slice";
+import { TaskDto, priority } from "../todo-lists-slice";
 
 export const fetchAddTodo = createAsyncThunk(
   "todo/fetchAddTodo",
@@ -8,11 +8,14 @@ export const fetchAddTodo = createAsyncThunk(
     try {
       const response = await taskService.addTask(taskData);
 
-      if (response.status !== 200) {
+      if (response.status !== 201) {
         return rejectWithValue(response.data);
       }
 
-      return response.data;
+      const data = response.data;
+      data.priority = data.priority.toLowerCase() as priority;
+
+      return data;
     } catch (err) {
       return rejectWithValue(err);
     }

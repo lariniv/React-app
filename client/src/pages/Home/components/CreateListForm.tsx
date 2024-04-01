@@ -46,7 +46,6 @@ export default function CreateListForm() {
     const token = localStorage.getItem("token") as string;
 
     if (token) {
-      console.log("Bob");
       dispatch(fetchAddTodoList({ name, ownerId: token }));
     }
 

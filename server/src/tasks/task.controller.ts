@@ -18,7 +18,6 @@ export class TasksController {
   createTask(
     @Body() data: Prisma.TaskCreateInput,
   ): Promise<Task & { listId: string }> {
-    data.dueDate = new Date(data.dueDate);
     return this.taskService.create(data);
   }
 

@@ -65,7 +65,7 @@ export default function EditCardPopupForm({
     defaultValues: {
       name: taskName,
       description: taskDescription,
-      dueDate: taskDueDate.toISOString().split("T")[0],
+      dueDate: new Date(taskDueDate).toISOString().split("T")[0],
       status: listId,
       priority: taskPriority,
     },
@@ -74,11 +74,15 @@ export default function EditCardPopupForm({
   function onSubmit(value: z.infer<typeof formSchema>) {
     const name = value.name;
     const description = value.description;
-    const priority = value.priority;
+    let priorityValue = value.priority;
     const dueDate = value.dueDate;
     const status = value.status;
 
-    let task = {} as Partial<TaskDto>;
+    if (priorityValue === "low") priorityValue = priority.low;
+    if (priorityValue === "medium") priorityValue = priority.medium;
+    if (priorityValue === "high") priorityValue = priority.high;
+
+    const task = {} as Partial<TaskDto>;
 
     if (name && name !== taskName) {
       task.name = name;
@@ -107,8 +111,8 @@ export default function EditCardPopupForm({
       );
     }
 
-    if (priority && priority !== taskPriority) {
-      task.priority = priority as priority;
+    if (priorityValue && priorityValue !== taskPriority) {
+      task.priority = priorityValue as priority;
       dispatch(
         addEditActivity({
           taskId,
@@ -116,12 +120,15 @@ export default function EditCardPopupForm({
           edittedField: "priority",
           type: "edit",
           inititalValue: taskPriority,
-          changedValue: priority,
+          changedValue: priorityValue,
         })
       );
     }
 
-    if (dueDate && new Date(dueDate).getTime() !== taskDueDate.getTime()) {
+    if (
+      dueDate &&
+      new Date(dueDate).getTime() !== new Date(taskDueDate).getTime()
+    ) {
       task.dueDate = new Date(dueDate);
 
       dispatch(
@@ -141,7 +148,7 @@ export default function EditCardPopupForm({
     dispatch(fetchUpdateTodo({ id: taskId, data: { ...task } }));
 
     if (status && status !== listId) {
-      dispatch(fetchUpdateTodo({ id: taskId, data: { List: status } }));
+      dispatch(fetchUpdateTodo({ id: taskId, data: { listId: status } }));
 
       dispatch(
         addMoveActivity({
@@ -239,7 +246,9 @@ export default function EditCardPopupForm({
                     <Input
                       className="w-1/2 font-semibold py-0.5 px-3.5"
                       type="date"
-                      defaultValue={taskDueDate.toISOString().split("T")[0]}
+                      defaultValue={
+                        new Date(taskDueDate).toISOString().split("T")[0]
+                      }
                       {...field}
                     />
                   </div>

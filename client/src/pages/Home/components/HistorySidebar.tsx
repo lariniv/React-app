@@ -46,8 +46,6 @@ export default function HistorySidebar() {
     (state: RootState) => state.activity.activityLog
   );
 
-  console.log(activityLog);
-
   return (
     <AnimatePresence>
       <div

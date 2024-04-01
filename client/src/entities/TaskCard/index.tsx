@@ -1,5 +1,5 @@
 import { AppDispatch, RootState } from "@/app/store/store";
-import { Task } from "@/app/store/todo-slice/todo-lists-slice";
+import { Task, priority } from "@/app/store/todo-slice/todo-lists-slice";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -25,7 +25,7 @@ export default function TaskCard({
   name,
   description,
   dueDate,
-  priority,
+  priority: priorityValue,
   id,
 }: Task) {
   const { id: listId } = useList();
@@ -37,7 +37,9 @@ export default function TaskCard({
       <CardHeader>
         <CardTitle className="flex items-center justify-between w-full">
           <span className="max-w-[90%] overflow-clip">{name}</span>
-          <TaskCardMenu task={{ name, description, dueDate, priority, id }} />
+          <TaskCardMenu
+            task={{ name, description, dueDate, priority: priorityValue, id }}
+          />
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -46,7 +48,7 @@ export default function TaskCard({
           <div className="flex items-center gap-1">
             <Calendar size={18} />
             <p>
-              {dueDate.toLocaleDateString("en-UA", {
+              {new Date(dueDate).toLocaleDateString("en-UA", {
                 weekday: "short",
                 day: "numeric",
                 month: "long",
@@ -58,13 +60,15 @@ export default function TaskCard({
             <div className="grid grid-cols-[6px_1fr] items-center gap-2 rounded-lg bg-black/10 w-fit px-4">
               <div
                 className={`w-full aspect-square ${
-                  priority === "low" ? "bg-black/25" : ""
-                } ${priority === "medium" ? "bg-black/50" : ""} ${
-                  priority === "high" ? "bg-black/85" : ""
+                  priorityValue ? "" : "bg-black/25"
+                } ${priorityValue === priority.low ? "bg-black/25" : ""} ${
+                  priorityValue === priority.medium ? "bg-black/50" : ""
+                } ${
+                  priorityValue === priority.high ? "bg-black/85" : ""
                 } rounded-full`}
               />
               <div className="font-semibold text-black/80 capitalize">
-                {priority}
+                {priorityValue.toLowerCase()}
               </div>
             </div>
           </div>
@@ -86,7 +90,7 @@ export default function TaskCard({
                 onClick={() => {
                   if (list.id === listId) return;
 
-                  dispatch(fetchUpdateTodo({ id, data: { List: list.id } }));
+                  dispatch(fetchUpdateTodo({ id, data: { listId: list.id } }));
 
                   dispatch(
                     addMoveActivity({

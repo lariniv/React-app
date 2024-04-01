@@ -66,18 +66,22 @@ export default function EditCardForm({
     defaultValues: {
       name: taskName,
       description: taskDescription,
-      dueDate: taskDueDate.toISOString().split("T")[0],
-      priority: "",
+      dueDate: new Date(taskDueDate).toISOString().split("T")[0],
+      priority: "low",
     },
   });
 
   function onSubmit(value: z.infer<typeof formSchema>) {
     const name = value.name;
     const description = value.description;
-    const priority = value.priority;
+    let priorityValue = value.priority;
     const dueDate = value.dueDate;
 
-    let task = {} as Partial<TaskDto>;
+    if (priorityValue === "low") priorityValue = priority.low;
+    if (priorityValue === "medium") priorityValue = priority.medium;
+    if (priorityValue === "high") priorityValue = priority.high;
+
+    const task = {} as Partial<TaskDto>;
 
     if (name && name !== taskName) {
       task.name = name;
@@ -108,7 +112,10 @@ export default function EditCardForm({
       );
     }
 
-    if (dueDate && new Date(dueDate).getTime() !== taskDueDate.getTime()) {
+    if (
+      dueDate &&
+      new Date(dueDate).getTime() !== new Date(taskDueDate).getTime()
+    ) {
       task.dueDate = new Date(dueDate);
 
       dispatch(
@@ -123,8 +130,8 @@ export default function EditCardForm({
       );
     }
 
-    if (priority && priority !== task.priority) {
-      task.priority = priority as priority;
+    if (priorityValue && priorityValue !== task.priority) {
+      task.priority = priorityValue as priority;
 
       dispatch(
         addEditActivity({
@@ -132,7 +139,7 @@ export default function EditCardForm({
           taskName,
           edittedField: "priority",
           inititalValue: taskPriority,
-          changedValue: priority,
+          changedValue: priorityValue,
           type: "edit",
         })
       );
@@ -207,7 +214,9 @@ export default function EditCardForm({
                   <FormControl>
                     <Input
                       type="date"
-                      defaultValue={taskDueDate.toISOString().split("T")[0]}
+                      defaultValue={
+                        new Date(taskDueDate).toISOString().split("T")[0]
+                      }
                       {...field}
                     />
                   </FormControl>
@@ -227,22 +236,28 @@ export default function EditCardForm({
                     <select
                       {...field}
                       className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
-                      defaultValue={"low"}
+                      defaultValue={"Select priority"}
                     >
                       <option
+                        disabled
                         className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                      >
+                        Select priority
+                      </option>
+                      <option
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                         value="low"
                       >
                         Low
                       </option>
                       <option
-                        className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                         value="medium"
                       >
                         Medium
                       </option>
                       <option
-                        className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                        className="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
                         value="high"
                       >
                         High

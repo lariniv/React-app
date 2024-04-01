@@ -14,8 +14,6 @@ export const fetchAddTodoList = createAsyncThunk(
         return rejectWithValue(response.data);
       }
 
-      console.log("Fetch add todo list", response.data);
-
       return response.data;
     } catch (err) {
       return rejectWithValue(err);

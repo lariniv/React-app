@@ -10,9 +10,9 @@ import { fetchDeleteTodo } from "./thunks/fetch-delete-todo";
 import { fetchUpdateTodo } from "./thunks/fetch-update-todo";
 
 export enum priority {
-  low = "low",
-  medium = "medium",
-  high = "high",
+  low = "LOW",
+  medium = "MEDIUM",
+  high = "HIGH",
 }
 
 export type Task = {
@@ -34,7 +34,7 @@ export type TaskDto = {
   description: string;
   dueDate: Date;
   priority: priority;
-  List: string;
+  listId: string;
 };
 
 type TaskListState = {
@@ -112,11 +112,11 @@ export const taskListSlice = createSlice({
     },
 
     addTask: (state, action: PayloadAction<{ listId: string; task: Task }>) => {
-      const list = state.taskLists.find(
+      const listIndex = state.taskLists.findIndex(
         (list) => list.id === action.payload.listId
       );
-      if (list) {
-        list.tasks.push({
+      if (listIndex) {
+        state.taskLists[listIndex].tasks.push({
           ...action.payload.task,
         });
       }
@@ -146,8 +146,6 @@ export const taskListSlice = createSlice({
     ) => {
       const { task } = action.payload;
       const { name, description, priority, dueDate } = task;
-
-      console.log(name, description);
 
       const list = state.taskLists.find(
         (list) => list.id === action.payload.listId
@@ -219,13 +217,13 @@ export const taskListSlice = createSlice({
       };
 
       const list = state.taskLists.find((list) => list.id === listId);
+
       if (list) {
         list.tasks.push(task);
       }
     });
 
     builder.addCase(fetchAddTodoList.fulfilled, (state, action) => {
-      console.log("Adde todo lit", action.payload);
       state.taskLists.push({
         id: action.payload.id,
         name: action.payload.name,
@@ -268,7 +266,8 @@ export const taskListSlice = createSlice({
 
       const list = state.taskLists.find((list) => list.id === listId);
       if (list) {
-        list.tasks.push(task);
+        const taskIndex = list.tasks.findIndex((task) => task.id === id);
+        list.tasks[taskIndex] = task;
       }
     });
     builder.addCase(fetchUpdateTodoList.fulfilled, (state, action) => {

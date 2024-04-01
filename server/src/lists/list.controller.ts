@@ -19,7 +19,6 @@ export class ListsController {
     @Body('name') name: string,
     @Body('ownerId') ownerId: string,
   ): Promise<List> {
-    console.log(name, ownerId);
     return this.listsService.createList(name, ownerId);
   }
 

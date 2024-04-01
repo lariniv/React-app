@@ -81,7 +81,7 @@ export default function EditCardForm({
                     Due date
                   </div>
                   <div className="w-1/2 font-semibold">
-                    {dueDate.toLocaleDateString("en-UA", {
+                    {new Date(dueDate).toLocaleDateString("en-UA", {
                       weekday: "short",
                       day: "numeric",
                       month: "long",
@@ -95,7 +95,8 @@ export default function EditCardForm({
                     Priority
                   </div>
                   <div className="w-1/2 capitalize font-semibold">
-                    {priority}
+                    {priority.slice(0, 1).toUpperCase() +
+                      priority.slice(1).toLowerCase()}
                   </div>
                 </div>
               </div>

@@ -5,7 +5,6 @@ import { useSelector } from "react-redux";
 
 export default function TaskBoard() {
   const taskLists = useSelector((state: RootState) => state.todo.taskLists);
-  console.log(taskLists);
   return (
     <div className={`w-full grid grid-cols-4 gap-6`}>
       {taskLists &&

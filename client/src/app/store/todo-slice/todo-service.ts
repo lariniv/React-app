@@ -6,7 +6,7 @@ class TaskService {
   async addTask(
     taskData: TaskDto
   ): Promise<AxiosResponse<Task & { listId: string }>> {
-    return await $api.post("/lists", taskData);
+    return await $api.post("/tasks", taskData);
   }
 
   async deleteTask(

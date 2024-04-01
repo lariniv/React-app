@@ -63,7 +63,7 @@ export default function AddCardForm({
     const description = value.description;
     const id = new Date().toString();
     const dueDate = new Date();
-    let priorityValue = value.priority as priority;
+    let priorityValue = value.priority;
 
     if (priorityValue === "low") {
       priorityValue = priority.low;
@@ -76,11 +76,10 @@ export default function AddCardForm({
     const task: TaskDto = {
       name,
       description,
-      priority: priorityValue,
+      priority: priorityValue as priority,
       dueDate,
-      List: listId,
+      listId,
     };
-
     dispatch(fetchAddTodo({ taskData: task }));
 
     dispatch(
