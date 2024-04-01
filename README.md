@@ -19,16 +19,16 @@ or
 ```bash
 npm install
 ```
-### Initialize prisma
-```bash
-npx prisma migrate dev
-```
 
 ### Configure dotnev
 ```env
 DATABASE_URL="postgresql://postgres:10024110Afg@localhost:5432/tododb?schema=public"
 ```
 
+### Initialize prisma
+```bash
+npx prisma migrate dev
+```
 
 ### Start the server
 ```bash
