@@ -24,6 +24,12 @@ npm install
 npx prisma migrate dev
 ```
 
+### Configure dotnev
+```env
+DATABASE_URL="postgresql://postgres:10024110Afg@localhost:5432/tododb?schema=public"
+```
+
+
 ### Start the server
 ```bash
 yarn start:dev
@@ -50,6 +56,11 @@ or
 ```bash
 npm install
 ```
+### Configure dotenv
+```env
+VITE_API_URL=http://localhost:3000
+```
+
 ### Start the server
 ```bash
 yarn dev
