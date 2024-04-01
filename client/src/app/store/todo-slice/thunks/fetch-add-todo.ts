@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import taskService from "../todo-service";
-import { TaskDto, priority } from "../todo-lists-slice";
+import { TaskDto } from "../types/task-dto";
+import { priority } from "../types/priority-enum";
 
 export const fetchAddTodo = createAsyncThunk(
   "todo/fetchAddTodo",

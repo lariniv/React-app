@@ -1,39 +1,41 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchGetActivitiesByOwnerId } from "./thunks/fetch-get-activities-by-owner-id";
+import { fetchAddActivity } from "./thunks/fetch-add-activity";
 
 export type BaseActivity = {
-  id: string;
+  id?: string;
   date: Date;
   taskId: string;
   taskName: string;
 };
 
 export type MoveActivity = BaseActivity & {
-  sourcelList: string;
+  sourceList: string;
   targetList: string;
-  type: "move";
+  type: "MOVE";
 };
 
 export type AddActivity = BaseActivity & {
   listName: string;
-  type: "add";
+  type: "ADD";
 };
 
 export type RenameActivity = BaseActivity & {
   initialValue: string;
   changedValue: string;
-  type: "rename";
+  type: "RENAME";
 };
 
 export type RemoveActivity = BaseActivity & {
   targetList: string;
-  type: "remove";
+  type: "REMOVE";
 };
 
 export type EditActivity = BaseActivity & {
   edittedField: string | Date;
-  inititalValue: string | Date;
+  initialValue: string | Date;
   changedValue: string;
-  type: "edit";
+  type: "EDIT";
 };
 
 export type Activity =
@@ -54,80 +56,16 @@ const initialState: ActivityState = {
 export const activitySlice = createSlice({
   name: "activity",
   initialState,
-  reducers: {
-    addMoveActivity: (
-      state,
-      action: PayloadAction<Omit<MoveActivity, "id" | "date">>
-    ) => {
-      const data = {
-        ...action.payload,
-        date: new Date(),
-        id: Date.now().toString(),
-      };
+  reducers: {},
+  extraReducers: (builder) => {
+    builder.addCase(fetchGetActivitiesByOwnerId.fulfilled, (state, action) => {
+      state.activityLog = action.payload;
+    });
 
-      state.activityLog.push(data);
-    },
-
-    addAddActivity: (
-      state,
-      action: PayloadAction<Omit<AddActivity, "id" | "date">>
-    ) => {
-      const data = {
-        ...action.payload,
-        date: new Date(),
-        id: Date.now().toString(),
-      };
-
-      state.activityLog.push(data);
-    },
-
-    addRemoveActivity: (
-      state,
-      action: PayloadAction<Omit<RemoveActivity, "id" | "date">>
-    ) => {
-      const data = {
-        ...action.payload,
-        date: new Date(),
-        id: Date.now().toString(),
-      };
-
-      state.activityLog.push(data);
-    },
-
-    addEditActivity: (
-      state,
-      action: PayloadAction<Omit<EditActivity, "id" | "date">>
-    ) => {
-      const data = {
-        ...action.payload,
-        date: new Date(),
-        id: Date.now().toString(),
-      };
-
-      state.activityLog.push(data);
-    },
-
-    addRenameActivity: (
-      state,
-      action: PayloadAction<Omit<RenameActivity, "id" | "date">>
-    ) => {
-      const data = {
-        ...action.payload,
-        date: new Date(),
-        id: Date.now().toString(),
-      };
-
-      state.activityLog.push(data);
-    },
+    builder.addCase(fetchAddActivity.fulfilled, (state, action) => {
+      state.activityLog.push(action.payload);
+    });
   },
 });
-
-export const {
-  addAddActivity,
-  addEditActivity,
-  addMoveActivity,
-  addRemoveActivity,
-  addRenameActivity,
-} = activitySlice.actions;
 
 export default activitySlice.reducer;

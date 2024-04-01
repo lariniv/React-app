@@ -26,6 +26,19 @@ CREATE TABLE "List" (
 );
 
 -- CreateTable
+CREATE TABLE "ListActivity" (
+    "id" TEXT NOT NULL,
+    "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "listId" TEXT NOT NULL,
+    "taskName" TEXT NOT NULL,
+    "listName" TEXT,
+    "type" "ActivityType" NOT NULL,
+    "ownerId" TEXT NOT NULL DEFAULT '1',
+
+    CONSTRAINT "ListActivity_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Activity" (
     "id" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -37,14 +50,17 @@ CREATE TABLE "Activity" (
     "listName" TEXT,
     "initialValue" TEXT,
     "changedValue" TEXT,
-    "editedField" TEXT,
+    "edittedField" TEXT,
     "type" "ActivityType" NOT NULL,
 
     CONSTRAINT "Activity_pkey" PRIMARY KEY ("id")
 );
 
 -- AddForeignKey
-ALTER TABLE "Task" ADD CONSTRAINT "Task_listId_fkey" FOREIGN KEY ("listId") REFERENCES "List"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Task" ADD CONSTRAINT "Task_listId_fkey" FOREIGN KEY ("listId") REFERENCES "List"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Activity" ADD CONSTRAINT "Activity_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Task"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "ListActivity" ADD CONSTRAINT "ListActivity_listId_fkey" FOREIGN KEY ("listId") REFERENCES "List"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Activity" ADD CONSTRAINT "Activity_taskId_fkey" FOREIGN KEY ("taskId") REFERENCES "Task"("id") ON DELETE CASCADE ON UPDATE CASCADE;

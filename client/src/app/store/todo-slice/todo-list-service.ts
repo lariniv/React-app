@@ -1,6 +1,6 @@
 import $api from "@/app/cfg/axios-config";
-import { TaskListType } from "./todo-lists-slice";
 import { AxiosResponse } from "axios";
+import { TaskListType } from "./types/task-list-type";
 
 class TodoListService {
   async addTodoList(taskListData: {
