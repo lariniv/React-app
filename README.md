@@ -24,7 +24,7 @@ npm install
 ```env
 DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>"
 ```
-Where ### `<USER>` - Name of your database user, e.g. `janedoe`
+### `<USER>` - Name of your database user, e.g. `janedoe`
 ### `<PASSWORD>` - Password for your database user
 ### `<HOST>` - IP address/domain of your database server, e.g. `localhost`
 ### `<PORT>` - 	Port on which your database server is running, e.g. `5432`
