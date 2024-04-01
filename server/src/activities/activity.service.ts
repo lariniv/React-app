@@ -11,9 +11,13 @@ export class ActivityService {
   }
 
   async getActivitiesByUserId(id: string) {
-    return this.prisma.activity.findMany({
+    const taskActivities = await this.prisma.activity.findMany({
       where: { ownerId: id },
     });
+    const listActivities = await this.prisma.listActivity.findMany({
+      where: { ownerId: id },
+    });
+    return [...taskActivities, ...listActivities];
   }
 
   async getActivityByTaskId(id: string) {
@@ -23,7 +27,14 @@ export class ActivityService {
   }
 
   async createActivity(data: Prisma.ActivityCreateInput) {
+    console.log('data', data);
     return this.prisma.activity.create({
+      data,
+    });
+  }
+
+  async createListActivity(data: Prisma.ListActivityCreateInput) {
+    return this.prisma.listActivity.create({
       data,
     });
   }

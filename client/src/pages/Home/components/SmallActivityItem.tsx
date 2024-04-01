@@ -3,16 +3,16 @@ import { Activity } from "@/app/store/activity-slice/activity-slice";
 export default function ActivityItem({ activity }: { activity: Activity }) {
   function ParseAction() {
     switch (activity.type) {
-      case "move":
+      case "MOVE":
         return (
           <div>
-            You moved this task from <b>{activity.sourcelList}</b> to{" "}
+            You moved this task from <b>{activity.sourceList}</b> to{" "}
             <b>{activity.targetList}</b>
           </div>
         );
-      case "add":
+      case "ADD":
         return <div>You created this task</div>;
-      case "edit":
+      case "EDIT":
         return (
           <div>
             You changed{" "}
@@ -21,14 +21,14 @@ export default function ActivityItem({ activity }: { activity: Activity }) {
               : activity.edittedField}{" "}
             in this card from{" "}
             <b>
-              {activity.inititalValue instanceof Date
-                ? activity.inititalValue.toLocaleDateString()
-                : activity.inititalValue}
+              {activity.initialValue instanceof Date
+                ? new Date(activity.initialValue).toLocaleDateString()
+                : activity.initialValue}
             </b>{" "}
             to <b>{activity.changedValue}</b>
           </div>
         );
-      case "rename":
+      case "RENAME":
         return (
           <div>
             You renamed this task from <b>{activity.initialValue}</b> to{" "}
@@ -45,14 +45,14 @@ export default function ActivityItem({ activity }: { activity: Activity }) {
         {ParseAction()}
       </div>
       <i className="pl-4">
-        {activity.date.toLocaleDateString("en-UA", {
+        {new Date(activity.date).toLocaleDateString("en-UA", {
           day: "numeric",
           month: "long",
         })}{" "}
-        at {activity.date.getHours()}:
-        {activity.date.getMinutes() > 10
-          ? `${activity.date.getMinutes()}`
-          : `0${activity.date.getMinutes()}`}
+        at {new Date(activity.date).getHours()}:
+        {new Date(activity.date).getMinutes() > 10
+          ? `${new Date(activity.date).getMinutes()}`
+          : `0${new Date(activity.date).getMinutes()}`}
       </i>
     </li>
   );

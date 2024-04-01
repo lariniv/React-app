@@ -4,7 +4,6 @@ import {
   DialogTrigger,
 } from "@/shared/components/ui/dialog";
 
-import { Task } from "@/app/store/todo-slice/todo-lists-slice";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Calendar, Crosshair, Edit, Tag } from "lucide-react";
@@ -14,6 +13,7 @@ import { RootState } from "@/app/store/store";
 import { useMemo, useState } from "react";
 import EditCardPopupForm from "./CardPopupForm";
 import SmallActivityItem from "@/pages/Home/components/SmallActivityItem";
+import { Task } from "@/app/store/todo-slice/types/task-type";
 
 export default function EditCardForm({
   children,

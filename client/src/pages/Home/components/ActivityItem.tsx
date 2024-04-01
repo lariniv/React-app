@@ -1,30 +1,45 @@
 import { Activity } from "@/app/store/activity-slice/activity-slice";
+import { RootState } from "@/app/store/store";
+import { TaskListType } from "@/app/store/todo-slice/types/task-list-type";
+import { useSelector } from "react-redux";
 
 export default function ActivityItem({ activity }: { activity: Activity }) {
+  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+
   function ParseAction() {
+    let targetList: TaskListType | undefined;
+
+    if (activity.type === "REMOVE") {
+      targetList = taskLists.find((list) => list.id === activity.targetList);
+    }
+
     switch (activity.type) {
-      case "move":
+      case "MOVE":
         return (
           <div>
             You moved <b>{activity.taskName}</b> from{" "}
-            <b>{activity.sourcelList}</b> to <b>{activity.targetList}</b>
+            <b>{activity.sourceList}</b> to <b>{activity.targetList}</b>
           </div>
         );
-      case "add":
+      case "ADD":
         return (
           <div>
             You added <b>{activity.taskName}</b> to the{" "}
             <b>{activity.listName}</b>
           </div>
         );
-      case "remove":
+      case "REMOVE":
         return (
           <div>
-            You removed <b>{activity.taskName}</b> from{" "}
-            <b>{activity.targetList}</b>
+            You removed <b>{activity.taskName}</b>{" "}
+            {targetList?.name && (
+              <>
+                from <b>{targetList?.name}</b>
+              </>
+            )}
           </div>
         );
-      case "edit":
+      case "EDIT":
         return (
           <div>
             You changed the{" "}
@@ -33,14 +48,29 @@ export default function ActivityItem({ activity }: { activity: Activity }) {
               : activity.edittedField}{" "}
             <b>{activity.taskName}</b> from{" "}
             <b>
-              {activity.inititalValue instanceof Date
-                ? activity.inititalValue.toLocaleDateString()
-                : activity.inititalValue}
+              {activity.edittedField === "dueDate" &&
+                new Date(activity.initialValue).toLocaleDateString()}
+              {activity.edittedField === "priority" &&
+                String(activity.initialValue).slice(0, 1).toUpperCase() +
+                  String(activity.initialValue).slice(1).toLowerCase()}
+              {activity.edittedField !== "dueDate" &&
+                activity.edittedField !== "priority" &&
+                String(activity.initialValue)}
             </b>{" "}
-            to <b>{activity.changedValue}</b>
+            to{" "}
+            <b>
+              {activity.edittedField === "dueDate" &&
+                new Date(activity.changedValue).toLocaleDateString()}
+              {activity.edittedField === "priority" &&
+                String(activity.changedValue).slice(0, 1).toUpperCase() +
+                  String(activity.changedValue).slice(1).toLowerCase()}
+              {activity.edittedField !== "dueDate" &&
+                activity.edittedField !== "priority" &&
+                String(activity.changedValue)}
+            </b>
           </div>
         );
-      case "rename":
+      case "RENAME":
         return (
           <div>
             You renamed <b>{activity.initialValue}</b> to{" "}
@@ -57,14 +87,14 @@ export default function ActivityItem({ activity }: { activity: Activity }) {
         {ParseAction()}
       </div>
       <i className="pl-7 text-sm">
-        {activity.date.toLocaleDateString("en-UA", {
+        {new Date(activity.date).toLocaleDateString("en-UA", {
           day: "numeric",
           month: "long",
         })}{" "}
-        at {activity.date.getHours()}:
-        {activity.date.getMinutes() > 10
-          ? `${activity.date.getMinutes()}`
-          : `0${activity.date.getMinutes()}`}
+        at {new Date(activity.date).getHours()}:
+        {new Date(activity.date).getMinutes() > 10
+          ? `${new Date(activity.date).getMinutes()}`
+          : `0${new Date(activity.date).getMinutes()}`}
       </i>
     </div>
   );

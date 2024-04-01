@@ -1,5 +1,4 @@
 import { AppDispatch, RootState } from "@/app/store/store";
-import { Task, priority } from "@/app/store/todo-slice/todo-lists-slice";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -18,8 +17,11 @@ import { Calendar, ChevronDown } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import TaskCardMenu from "./components/TaskCardMenu";
 import { useList } from "@/app/list-provider/list-provider";
-import { addMoveActivity } from "@/app/store/activity-slice/activity-slice";
 import { fetchUpdateTodo } from "@/app/store/todo-slice/thunks/fetch-update-todo";
+import { Task } from "@/app/store/todo-slice/types/task-type";
+import { priority } from "@/app/store/todo-slice/types/priority-enum";
+import { MoveActivity } from "@/app/store/activity-slice/activity-slice";
+import { fetchAddActivity } from "@/app/store/activity-slice/thunks/fetch-add-activity";
 
 export default function TaskCard({
   name,
@@ -92,14 +94,21 @@ export default function TaskCard({
 
                   dispatch(fetchUpdateTodo({ id, data: { listId: list.id } }));
 
+                  const activityPayload: MoveActivity = {
+                    date: new Date(),
+                    taskId: list.id,
+                    targetList: list.name,
+                    sourceList: listName,
+                    type: "MOVE",
+                    taskName: name,
+                  };
+
+                  const ownerId = localStorage.getItem("token")!;
+
+                  if (!ownerId) return;
+
                   dispatch(
-                    addMoveActivity({
-                      taskId: id,
-                      targetList: list.name,
-                      sourcelList: listName,
-                      type: "move",
-                      taskName: name,
-                    })
+                    fetchAddActivity({ activityData: activityPayload, ownerId })
                   );
                 }}
               >
