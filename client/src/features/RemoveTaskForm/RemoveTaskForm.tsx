@@ -33,7 +33,9 @@ export default function RemoveTaskForm({
 
   const taskLists = useSelector((state: RootState) => state.todo.taskLists);
 
-  const list: TaskList = taskLists.find((list) => list.id === listId);
+  const list: TaskList | undefined = taskLists.find(
+    (list) => list.id === listId
+  );
 
   const name = list?.tasks.find((task) => task.id === taskId)?.name as string;
 

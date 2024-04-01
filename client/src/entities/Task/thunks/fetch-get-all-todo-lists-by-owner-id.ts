@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { TaskListType, todoListService, todoService } from "..";
+import { TaskList, todoListService, todoService } from "..";
 
 export const fetchGetAllTodoListsByOwnerId = createAsyncThunk(
   "todo/fetchGetAllTodoListsByOwnerId",
@@ -20,9 +20,9 @@ export const fetchGetAllTodoListsByOwnerId = createAsyncThunk(
         })
       );
 
-      const data: TaskListType[] = [];
+      const data: TaskList[] = [];
       for (let i = 0; i < taskLists.length; i++) {
-        const taskList: TaskListType = {
+        const taskList: TaskList = {
           id: taskLists[i].id,
           name: taskLists[i].name,
           tasks: [],

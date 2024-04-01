@@ -1,13 +1,13 @@
-import { TaskListType } from "@/entities";
+import { TaskList } from "@/entities";
 import { createContext, useContext } from "react";
 
-const listProvider = createContext<TaskListType>({} as TaskListType);
+const listProvider = createContext<TaskList>({} as TaskList);
 
 export function ListProvider({
   value,
   children,
 }: {
-  value: TaskListType;
+  value: TaskList;
   children: React.ReactNode;
 }) {
   return (

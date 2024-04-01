@@ -14,7 +14,6 @@ export default function TaskList({
   totalTaskAmount: number;
   taskArray: Task[];
 }) {
-  //Vercel commit
   return (
     <div className="w-full  h-full flex flex-col gap-2">
       <div className="flex items-center justify-between border-y-2 p-2 ">

@@ -1,5 +1,5 @@
 import { RootState } from "@/app/store/store";
-import { Activity, TaskListType } from "@/entities";
+import { Activity, TaskList } from "@/entities";
 import { useSelector } from "react-redux";
 import {
   getAssembledTime,
@@ -13,7 +13,7 @@ export default function ActivityItem({ activity }: { activity: Activity }) {
   const taskLists = useSelector((state: RootState) => state.todo.taskLists);
 
   function ParseAction() {
-    let targetList: TaskListType | undefined;
+    let targetList: TaskList | undefined;
 
     if (activity.type === "REMOVE") {
       targetList = taskLists.find((list) => list.id === activity.targetList);
