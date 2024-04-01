@@ -1,18 +1,18 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { fetchAddTodo } from "./thunks/fetch-add-todo";
 import {
+  Task,
+  TaskList,
+  fetchAddTodo,
   fetchAddTodoList,
+  fetchDeleteTodo,
   fetchDeleteTodoList,
   fetchGetAllTodoListsByOwnerId,
+  fetchUpdateTodo,
   fetchUpdateTodoList,
-} from "./thunks";
-import { fetchDeleteTodo } from "./thunks/fetch-delete-todo";
-import { fetchUpdateTodo } from "./thunks/fetch-update-todo";
-import { TaskListType } from "./types/task-list-type";
-import { Task } from "./types/task-type";
+} from "@/entities";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 type TaskListState = {
-  taskLists: TaskListType[];
+  taskLists: TaskList[];
 };
 
 const initialState: TaskListState = {
@@ -61,7 +61,7 @@ export const taskListSlice = createSlice({
         id,
         name,
         description,
-        dueDate: new Date(dueDate),
+        dueDate,
         priority,
       };
 

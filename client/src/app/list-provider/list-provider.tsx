@@ -1,5 +1,5 @@
+import { TaskListType } from "@/entities";
 import { createContext, useContext } from "react";
-import { TaskListType } from "../store/todo-slice/todo-lists-slice";
 
 const listProvider = createContext<TaskListType>({} as TaskListType);
 

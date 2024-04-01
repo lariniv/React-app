@@ -1,11 +1,13 @@
-import CreateListForm from "./components/CreateListForm";
-import { TaskBoard } from "@/widgets";
-import HistorySidebar from "./components/HistorySidebar";
+import { HistorySidebar } from "@/widgets";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { fetchGetAllTodoListsByOwnerId } from "@/app/store/todo-slice/thunks";
 import { AppDispatch } from "@/app/store/store";
-import { fetchGetActivitiesByOwnerId } from "@/app/store/activity-slice/thunks/fetch-get-activities-by-owner-id";
+import {
+  fetchGetActivitiesByOwnerId,
+  fetchGetAllTodoListsByOwnerId,
+} from "@/entities";
+import { CreateListForm } from "@/features";
+import TaskBoard from "./components/TaskBoard";
 
 function generateToken() {
   const alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -39,9 +41,11 @@ export default function Home() {
   }, [dispatch]);
   return (
     <div className="relative max-w-7xl flex flex-col gap-8">
-      <div className="flex justify-between w-full">
-        <h1 className="text-3xl text-start w-full font-bold">My task board</h1>
-        <div className="flex gap-2">
+      <div className="flex flex-col md:flex-row w-full gap-4">
+        <h1 className="text-4xl text-center md:text-3xl md:text-start w-full font-bold block">
+          My task board
+        </h1>
+        <div className="grid max-sm:grid-cols-1 max-md:grid-cols-2 md:flex gap-2 w-full">
           <HistorySidebar />
           <CreateListForm />
         </div>
