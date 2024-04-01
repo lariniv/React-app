@@ -22,8 +22,14 @@ npm install
 
 ### Configure dotnev
 ```env
-DATABASE_URL="postgresql://postgres:10024110Afg@localhost:5432/tododb?schema=public"
+DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>"
 ```
+Where <USER> - Name of your database user, e.g. `janedoe`
+<PASSWORD> - Password for your database user
+<HOST> - IP address/domain of your database server, e.g. `localhost`
+<PORT> - 	Port on which your database server is running, e.g. `5432`
+<DATABASE> - 	Name of the database you want to use, e.g. `mydb`
+
 
 ### Initialize prisma
 ```bash
