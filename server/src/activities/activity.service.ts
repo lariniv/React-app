@@ -27,7 +27,6 @@ export class ActivityService {
   }
 
   async createActivity(data: Prisma.ActivityCreateInput) {
-    console.log('data', data);
     return this.prisma.activity.create({
       data,
     });

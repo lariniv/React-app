@@ -1,6 +1,7 @@
 import $api from "@/app/cfg/axios-config";
-import { Task, TaskDto } from "./todo-lists-slice";
 import { AxiosResponse } from "axios";
+import { Task } from "./types/task-type";
+import { TaskDto } from "./types/task-dto";
 
 class TaskService {
   async addTask(

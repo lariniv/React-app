@@ -14,6 +14,7 @@ export const fetchAddActivity = createAsyncThunk(
   ) => {
     try {
       let response;
+      activityData.date = new Date(activityData.date);
       if (activityData.type === "ADD") {
         const { date, listName, taskName, type } = activityData;
         const data = { date, listName, taskName, type, listId };

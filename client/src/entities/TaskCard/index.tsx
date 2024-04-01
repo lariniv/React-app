@@ -22,13 +22,14 @@ import { Task } from "@/app/store/todo-slice/types/task-type";
 import { priority } from "@/app/store/todo-slice/types/priority-enum";
 import { MoveActivity } from "@/app/store/activity-slice/activity-slice";
 import { fetchAddActivity } from "@/app/store/activity-slice/thunks/fetch-add-activity";
+import { moveTodo } from "@/app/store/todo-slice/todo-lists-slice";
 
 export default function TaskCard({
   name,
   description,
   dueDate,
   priority: priorityValue,
-  id,
+  id: taskId,
 }: Task) {
   const { id: listId } = useList();
   const dispatch = useDispatch<AppDispatch>();
@@ -40,7 +41,13 @@ export default function TaskCard({
         <CardTitle className="flex items-center justify-between w-full">
           <span className="max-w-[90%] overflow-clip">{name}</span>
           <TaskCardMenu
-            task={{ name, description, dueDate, priority: priorityValue, id }}
+            task={{
+              name,
+              description,
+              dueDate,
+              priority: priorityValue,
+              taskId,
+            }}
           />
         </CardTitle>
       </CardHeader>
@@ -92,17 +99,28 @@ export default function TaskCard({
                 onClick={() => {
                   if (list.id === listId) return;
 
-                  dispatch(fetchUpdateTodo({ id, data: { listId: list.id } }));
+                  dispatch(
+                    fetchUpdateTodo({ id: taskId, data: { listId: list.id } })
+                  );
+
+                  dispatch(
+                    moveTodo({
+                      taskId,
+                      targetListId: list.id,
+                      sourceListId: listId,
+                    })
+                  );
 
                   const activityPayload: MoveActivity = {
                     date: new Date(),
-                    taskId: list.id,
+                    taskId: taskId,
                     targetList: list.name,
                     sourceList: listName,
                     type: "MOVE",
                     taskName: name,
                   };
 
+                  console.log("taskid", activityPayload);
                   const ownerId = localStorage.getItem("token")!;
 
                   if (!ownerId) return;

@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { fetchAddTodo } from "./thunks/fetch-add-todo";
 import {
   fetchAddTodoList,
@@ -22,7 +22,36 @@ const initialState: TaskListState = {
 export const taskListSlice = createSlice({
   name: "taskList",
   initialState,
-  reducers: {},
+  reducers: {
+    moveTodo: (
+      state,
+      action: PayloadAction<{
+        sourceListId: string;
+        targetListId: string;
+        taskId: string;
+      }>
+    ) => {
+      const { sourceListId, targetListId, taskId } = action.payload;
+
+      const sourceList = state.taskLists.find(
+        (list) => list.id === sourceListId
+      );
+      const targetList = state.taskLists.find(
+        (list) => list.id === targetListId
+      );
+
+      if (sourceList && targetList) {
+        const task = sourceList.tasks.find((task) => task.id === taskId);
+
+        if (task) {
+          sourceList.tasks = sourceList.tasks.filter(
+            (task) => task.id !== taskId
+          );
+          targetList.tasks.push(task);
+        }
+      }
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(fetchAddTodo.fulfilled, (state, action) => {
       const { id, name, description, dueDate, listId, priority } =
@@ -80,7 +109,7 @@ export const taskListSlice = createSlice({
         id,
         name,
         description,
-        dueDate: new Date(dueDate),
+        dueDate,
         priority,
       };
 
@@ -101,4 +130,5 @@ export const taskListSlice = createSlice({
   },
 });
 
+export const { moveTodo } = taskListSlice.actions;
 export default taskListSlice.reducer;
