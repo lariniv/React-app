@@ -53,7 +53,7 @@ export default function HistorySidebar() {
         className="flex md:justify-end gap-2 w-full"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Button variant={"outline"} className="w-full">
+        <Button variant={"outline"} className="max-md:w-full">
           <History size={18} />
           <div>History</div>
         </Button>
