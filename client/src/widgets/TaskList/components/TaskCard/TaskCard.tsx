@@ -22,7 +22,6 @@ import {
   Task,
   fetchAddActivity,
   fetchUpdateTodo,
-  priority,
 } from "@/entities";
 import { TaskCardMenu } from "@/features";
 
@@ -40,6 +39,20 @@ export default function TaskCard({
   const { id: listId } = useList();
 
   const { name: listName } = taskLists.find((list) => list.id === listId)!;
+
+  function getPriorityColor(priority: string) {
+    console.log(priority);
+    switch (priority) {
+      case "LOW":
+        return "bg-black/25";
+      case "MEDIUM":
+        return "bg-black/50";
+      case "HIGH":
+        return "bg-black/85";
+      default:
+        return "bg-black/25";
+    }
+  }
   return (
     <Card className="w-full text-start">
       <CardHeader>
@@ -73,13 +86,9 @@ export default function TaskCard({
           <div className="py-2">
             <div className="grid grid-cols-[6px_1fr] items-center gap-2 rounded-lg bg-black/10 w-fit px-4">
               <div
-                className={`w-full aspect-square ${
-                  priorityValue ? "" : "bg-black/25"
-                } ${priorityValue === priority.low ? "bg-black/25" : ""} ${
-                  priorityValue === priority.medium ? "bg-black/50" : ""
-                } ${
-                  priorityValue === priority.high ? "bg-black/85" : ""
-                } rounded-full`}
+                className={`w-full aspect-square ${getPriorityColor(
+                  priorityValue
+                )} rounded-full`}
               />
               <div className="font-semibold text-black/80 capitalize">
                 {priorityValue.toLowerCase()}

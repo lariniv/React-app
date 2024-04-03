@@ -100,6 +100,8 @@ export default function AddCardForm({
       })
     );
 
+    setIsOpen(false);
+
     form.reset();
   }
 

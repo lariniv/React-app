@@ -48,9 +48,9 @@ export default function CreateListForm() {
       dispatch(fetchAddTodoList({ name, ownerId: token }));
     }
 
-    form.reset();
-
     setIsOpen(false);
+
+    form.reset();
   }
   const [isOpen, setIsOpen] = useState(false);
 

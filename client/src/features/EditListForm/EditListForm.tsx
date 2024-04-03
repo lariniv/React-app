@@ -52,9 +52,9 @@ export default function EditListForm({
 
     dispatch(fetchUpdateTodoList({ id: listId, data: { name } }));
 
-    form.reset();
-
     setIsOpen(false);
+
+    form.reset();
   }
 
   const [isOpen, setIsOpen] = useState(false);
