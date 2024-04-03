@@ -96,7 +96,7 @@ export default function TaskCard({
               <ChevronDown />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-60">
+          <DropdownMenuContent className="md:w-60 w-[26.5rem]">
             {taskLists.map((list) => (
               <DropdownMenuItem
                 className="cursor-pointer"

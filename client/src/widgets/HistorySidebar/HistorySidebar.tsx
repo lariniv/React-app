@@ -71,7 +71,7 @@ export default function HistorySidebar() {
               damping: 30,
               stiffness: 200,
             }}
-            className="max-w-[400px] w-full fixed h-screen bg-accent z-[1000] right-0 top-0 history-sidebar "
+            className="md:max-w-[400px] w-full fixed h-screen bg-accent z-[1000] right-0 top-0 history-sidebar "
           >
             <div>
               <div className="w-full flex justify-between bg-black/20 p-4 items-center">

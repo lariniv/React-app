@@ -29,6 +29,8 @@ import {
   priority,
 } from "@/entities";
 import { formSchema } from "./schemas/form-schema";
+import { cn } from "@/shared/lib/utils";
+import { useState } from "react";
 
 export default function AddCardForm({
   children,
@@ -101,10 +103,17 @@ export default function AddCardForm({
     form.reset();
   }
 
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <Dialog>
-      <DialogTrigger className={selector}>{children}</DialogTrigger>
-      <DialogContent className={selector}>
+    <Dialog open={isOpen}>
+      <DialogTrigger onClick={() => setIsOpen(!isOpen)} className={selector}>
+        {children}
+      </DialogTrigger>
+      <DialogContent
+        customOnClick={() => setIsOpen(false)}
+        className={cn("max-md:h-screen max-md:flex max-md:flex-col", selector)}
+      >
         <DialogHeader className="font-bold mx-auto text-2xl">
           Add new Card!
         </DialogHeader>

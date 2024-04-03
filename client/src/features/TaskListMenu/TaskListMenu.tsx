@@ -1,22 +1,12 @@
 import { Edit, EllipsisVertical, Plus, Trash2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AddCardForm, EditListForm, RemoveListForm } from "..";
+import useOutsideClick from "@/shared/hooks/use-outside-hook";
 
 export default function TaskListMenu() {
   const [isOpen, setIsOen] = useState(false);
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (e.target instanceof Element && !e.target.closest(".options")) {
-        setIsOen(false);
-      }
-    };
+  useOutsideClick(".options", () => setIsOen(false));
 
-    document.addEventListener("mousedown", handleOutsideClick);
-
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  });
   return (
     <div>
       <div onClick={() => setIsOen(!isOpen)} className="options">

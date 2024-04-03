@@ -1,23 +1,14 @@
 import { Task } from "@/entities";
 import { Edit, EllipsisVertical, Info, Trash2Icon } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { CardPopup, EditTaskForm, RemoveTaskForm } from "..";
+import useOutsideClick from "@/shared/hooks/use-outside-hook";
 
 export default function TaskCardMenu({ task }: { task: Task }) {
   const [isOpen, setIsOen] = useState(false);
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      if (e.target instanceof Element && !e.target.closest(".card-menu")) {
-        setIsOen(false);
-      }
-    };
 
-    document.addEventListener("mousedown", handleOutsideClick);
+  useOutsideClick(".card-menu", () => setIsOen(false));
 
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-    };
-  });
   return (
     <div>
       <div onClick={() => setIsOen(!isOpen)} className="card-menu">

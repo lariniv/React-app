@@ -35,6 +35,7 @@ import {
   priority,
 } from "@/entities";
 import { formSchema } from "./schemas/form-schema";
+import { cn } from "@/shared/lib/utils";
 
 export default function EditCardForm({
   children,
@@ -172,7 +173,7 @@ export default function EditCardForm({
       </DialogTrigger>
       <DialogContent
         customOnClick={() => setIsOpen(false)}
-        className={selector}
+        className={cn("max-md:h-screen max-md:flex max-md:flex-col", selector)}
       >
         <DialogHeader className="font-bold mx-auto text-2xl">
           Edit your task!

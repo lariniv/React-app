@@ -26,6 +26,8 @@ import { z } from "zod";
 import { AppDispatch } from "@/app/store/store";
 import { fetchAddTodoList } from "@/entities/Task/thunks";
 import { formSchema } from "./schemas/form-schema";
+import { useState } from "react";
+import useOutsideClick from "@/shared/hooks/use-outside-hook";
 
 export default function CreateListForm() {
   const dispatch = useDispatch<AppDispatch>();
@@ -47,17 +49,28 @@ export default function CreateListForm() {
     }
 
     form.reset();
+
+    setIsOpen(false);
   }
+  const [isOpen, setIsOpen] = useState(false);
+
+  useOutsideClick(".create-list-menu", () => setIsOpen(false));
 
   return (
-    <Dialog>
+    <Dialog open={isOpen}>
       <DialogTrigger>
-        <Button className="w-full">
+        <Button
+          className="w-full create-list-menu"
+          onClick={() => setIsOpen(!isOpen)}
+        >
           <Plus />
           <div>Create new list</div>
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        customOnClick={() => setIsOpen(false)}
+        className="max-md:h-screen max-md:flex max-md:flex-col create-list-menu"
+      >
         <DialogHeader className="font-bold mx-auto text-2xl">
           Create new list!
         </DialogHeader>

@@ -26,6 +26,8 @@ import { useList } from "@/app/list-provider/list-provider";
 import { AppDispatch } from "@/app/store/store";
 import { formSchema } from "./schemas/form-schema";
 import { fetchUpdateTodoList } from "@/entities";
+import { cn } from "@/shared/lib/utils";
+import { useState } from "react";
 
 export default function EditListForm({
   children,
@@ -51,12 +53,21 @@ export default function EditListForm({
     dispatch(fetchUpdateTodoList({ id: listId, data: { name } }));
 
     form.reset();
+
+    setIsOpen(false);
   }
 
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <Dialog>
-      <DialogTrigger className={selector}>{children}</DialogTrigger>
-      <DialogContent className={selector}>
+    <Dialog open={isOpen}>
+      <DialogTrigger onClick={() => setIsOpen(!isOpen)} className={selector}>
+        {children}
+      </DialogTrigger>
+      <DialogContent
+        customOnClick={() => setIsOpen(false)}
+        className={cn("max-md:h-screen max-md:flex max-md:flex-col", selector)}
+      >
         <DialogHeader className="font-bold mx-auto text-2xl">
           Edit your list
         </DialogHeader>
