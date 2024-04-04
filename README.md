@@ -79,3 +79,5 @@ npm run dev
 ```
 
 ## Deployed website - https://react-app-ochre-six.vercel.app/
+
+Note: Backend is hosted on Render, so it might take a while to load data, when you first time interact with it.
