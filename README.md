@@ -80,4 +80,4 @@ npm run dev
 
 ## Deployed website - https://react-app-ochre-six.vercel.app/
 
-Note: Backend is hosted on Render, so it might take a while to load data, when you first time interact with it.
+Note: Backend is hosted on Render, so it might bot load first time you opne it. If so send fetch to this endpoint - https://react-app-y040.onrender.com/health
