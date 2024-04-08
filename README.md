@@ -47,6 +47,12 @@ npm run start:dev
 ```
 
 ## Frontend Setup
+
+#### To run an application with Docker
+```bash
+docker-compose up --build
+```
+
 ### Navigate to client directory
 ```bash
 cd client
