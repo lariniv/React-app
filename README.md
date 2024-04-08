@@ -56,12 +56,12 @@ docker-compose up --build
 
 ### To run an applcation localy
 
-###$ Navigate to client directory
+#### Navigate to client directory
 ```bash
 cd client
 ```
 
-###$ Install dependacies
+#### Install dependacies
 ```bash
 yarn install
 ```
@@ -71,12 +71,12 @@ or
 ```bash
 npm install
 ```
-###$ Configure dotenv
+#### Configure dotenv
 ```env
 VITE_API_URL=http://localhost:3000
 ```
 
-###$ Start the server
+#### Start the server
 ```bash
 yarn dev
 ```
