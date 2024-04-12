@@ -7,11 +7,11 @@ A step-by-step series of examples that tell you how to get a development environ
 
 ## Backend Setup
 
-### Naviagte to server directory
+#### Naviagte to server directory
 ```bash
 cd server
 ```
-### Install dependanciies
+#### Install dependanciies
 ```bash
 yarn install
 ```
@@ -20,23 +20,23 @@ or
 npm install
 ```
 
-### Configure dotnev
+#### Configure dotnev
 ```env
 DATABASE_URL="postgresql://<USER>:<PASSWORD>@<HOST>:<PORT>/<DATABASE>"
 ```
-#### `<USER>` - Name of your database user, e.g. `janedoe`
-#### `<PASSWORD>` - Password for your database user
-#### `<HOST>` - IP address/domain of your database server, e.g. `localhost`
-#### `<PORT>` - 	Port on which your database server is running, e.g. `5432`
-#### `<DATABASE>` - 	Name of the database you want to use, e.g. `mydb`
+##### `<USER>` - Name of your database user, e.g. `janedoe`
+##### `<PASSWORD>` - Password for your database user
+##### `<HOST>` - IP address/domain of your database server, e.g. `localhost`
+##### `<PORT>` - 	Port on which your database server is running, e.g. `5432`
+##### `<DATABASE>` - 	Name of the database you want to use, e.g. `mydb`
 
 
-### Initialize prisma
+#### Initialize prisma
 ```bash
 npx prisma migrate dev
 ```
 
-### Start the server
+#### Start the server
 ```bash
 yarn start:dev
 ```
@@ -47,12 +47,21 @@ npm run start:dev
 ```
 
 ## Frontend Setup
-### Navigate to client directory
+
+### To run an application with Docker
+
+```bash
+docker-compose up --build
+```
+
+### To run an applcation localy
+
+#### Navigate to client directory
 ```bash
 cd client
 ```
 
-### Install dependacies
+#### Install dependacies
 ```bash
 yarn install
 ```
@@ -62,12 +71,12 @@ or
 ```bash
 npm install
 ```
-### Configure dotenv
+#### Configure dotenv
 ```env
 VITE_API_URL=http://localhost:3000
 ```
 
-### Start the server
+#### Start the server
 ```bash
 yarn dev
 ```
