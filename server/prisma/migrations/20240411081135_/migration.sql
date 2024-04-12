@@ -20,9 +20,18 @@ CREATE TABLE "Task" (
 CREATE TABLE "List" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "ownerId" TEXT NOT NULL DEFAULT '1',
+    "boardId" TEXT NOT NULL,
 
     CONSTRAINT "List_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Board" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "ownerId" TEXT NOT NULL DEFAULT '1',
+
+    CONSTRAINT "Board_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -58,6 +67,9 @@ CREATE TABLE "Activity" (
 
 -- AddForeignKey
 ALTER TABLE "Task" ADD CONSTRAINT "Task_listId_fkey" FOREIGN KEY ("listId") REFERENCES "List"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "List" ADD CONSTRAINT "List_boardId_fkey" FOREIGN KEY ("boardId") REFERENCES "Board"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ListActivity" ADD CONSTRAINT "ListActivity_listId_fkey" FOREIGN KEY ("listId") REFERENCES "List"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -22,12 +22,11 @@ import { useDispatch } from "react-redux";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useList } from "@/app/list-provider/list-provider";
-import { AppDispatch } from "@/app/store/store";
 import { formSchema } from "./schemas/form-schema";
 import { fetchUpdateTodoList } from "@/entities";
 import { cn } from "@/shared/lib/utils";
 import { useState } from "react";
+import { AppDispatch, useList } from "@/processes";
 
 export default function EditListForm({
   children,

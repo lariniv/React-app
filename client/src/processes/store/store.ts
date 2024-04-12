@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import todoListsSlice from "./todo-slice/todo-lists-slice";
 import activitySlice from "./activity-slice/activity-slice";
+import boardSlice from "./board-slice/board-slice";
 
 const store = configureStore({
   reducer: {
-    todo: todoListsSlice,
+    board: boardSlice,
     activity: activitySlice,
   },
 });

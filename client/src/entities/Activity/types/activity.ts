@@ -3,6 +3,7 @@ export type BaseActivity = {
   date: Date;
   taskId: string;
   taskName: string;
+  boardId: string;
 };
 
 export type MoveActivity = BaseActivity & {

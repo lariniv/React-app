@@ -24,7 +24,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { useState } from "react";
-import { AppDispatch } from "@/app/store/store";
 import {
   EditActivity,
   RenameActivity,
@@ -36,6 +35,7 @@ import {
 } from "@/entities";
 import { formSchema } from "./schemas/form-schema";
 import { cn } from "@/shared/lib/utils";
+import { AppDispatch, useBoard } from "@/processes";
 
 export default function EditCardForm({
   children,
@@ -47,6 +47,8 @@ export default function EditCardForm({
   task: Task;
 }) {
   const dispatch = useDispatch<AppDispatch>();
+
+  const { id: boardId } = useBoard();
 
   const {
     id: taskId,
@@ -88,6 +90,7 @@ export default function EditCardForm({
         taskId,
         date: new Date(),
         taskName,
+        boardId,
         initialValue: taskName,
         changedValue: name,
         type: "RENAME",
@@ -104,6 +107,7 @@ export default function EditCardForm({
       const editActivityPayload: EditActivity = {
         taskId,
         taskName,
+        boardId,
         date: new Date(),
         edittedField: "description",
         initialValue: taskDescription,
@@ -125,6 +129,7 @@ export default function EditCardForm({
       const editActivityPayload: EditActivity = {
         taskId,
         taskName,
+        boardId,
         date: new Date(),
         edittedField: "dueDate",
         initialValue: taskDueDate,
@@ -143,6 +148,7 @@ export default function EditCardForm({
       const editActivityPayload: EditActivity = {
         taskId,
         taskName,
+        boardId,
         date: new Date(),
         edittedField: "priority",
         initialValue: taskPriority,
@@ -157,7 +163,7 @@ export default function EditCardForm({
 
     if (Object.keys(task).length === 0) return;
 
-    dispatch(fetchUpdateTodo({ id: taskId, data: { ...task } }));
+    dispatch(fetchUpdateTodo({ id: taskId, data: { ...task }, boardId }));
 
     setIsOpen(false);
 

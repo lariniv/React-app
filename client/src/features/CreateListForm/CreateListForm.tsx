@@ -19,15 +19,14 @@ import {
 
 import { Plus } from "lucide-react";
 import { useDispatch } from "react-redux";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { AppDispatch } from "@/app/store/store";
 import { fetchAddTodoList } from "@/entities/Task/thunks";
 import { formSchema } from "./schemas/form-schema";
 import { useState } from "react";
 import useOutsideClick from "@/shared/hooks/use-outside-hook";
+import { AppDispatch, useBoard } from "@/processes";
 
 export default function CreateListForm() {
   const dispatch = useDispatch<AppDispatch>();
@@ -39,14 +38,12 @@ export default function CreateListForm() {
     },
   });
 
+  const { id: boardId } = useBoard();
+
   function onSubmit(value: z.infer<typeof formSchema>) {
     const name = value.name;
 
-    const token = localStorage.getItem("token") as string;
-
-    if (token) {
-      dispatch(fetchAddTodoList({ name, ownerId: token }));
-    }
+    dispatch(fetchAddTodoList({ name, boardId }));
 
     setIsOpen(false);
 

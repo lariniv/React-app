@@ -9,9 +9,8 @@ import {
 import { useDispatch } from "react-redux";
 
 import { useState } from "react";
-import { useList } from "@/app/list-provider/list-provider";
-import { AppDispatch } from "@/app/store/store";
 import { fetchDeleteTodoList } from "@/entities";
+import { AppDispatch, useList } from "@/processes";
 
 export default function RemoveListForm({
   children,

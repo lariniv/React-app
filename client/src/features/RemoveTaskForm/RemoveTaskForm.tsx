@@ -9,14 +9,13 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 
 import { useState } from "react";
-import { useList } from "@/app/list-provider/list-provider";
-import { AppDispatch, RootState } from "@/app/store/store";
 import {
   RemoveActivity,
   TaskList,
   fetchAddActivity,
   fetchDeleteTodo,
 } from "@/entities";
+import { AppDispatch, useList, RootState, useBoard } from "@/processes";
 
 export default function RemoveTaskForm({
   children,
@@ -31,9 +30,15 @@ export default function RemoveTaskForm({
 
   const { id: listId } = useList();
 
-  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+  const { id: boardId } = useBoard();
 
-  const list: TaskList | undefined = taskLists.find(
+  const boardLists = useSelector((state: RootState) => state.board.taskBoards);
+
+  const board = boardLists.find((board) => board.id === boardId);
+
+  const taskLists = board?.lists;
+
+  const list: TaskList | undefined = taskLists?.find(
     (list) => list.id === listId
   );
 
@@ -64,6 +69,7 @@ export default function RemoveTaskForm({
               const removeAcitityPayload: RemoveActivity = {
                 date: new Date(),
                 taskId,
+                boardId,
                 taskName: name,
                 targetList: listId,
                 type: "REMOVE",
@@ -80,7 +86,7 @@ export default function RemoveTaskForm({
                 })
               );
 
-              dispatch(fetchDeleteTodo({ id: taskId }));
+              dispatch(fetchDeleteTodo({ id: taskId, boardId }));
               setIsOpen(false);
             }}
           >

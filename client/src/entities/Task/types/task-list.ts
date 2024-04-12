@@ -4,4 +4,5 @@ export type TaskList = {
   id: string;
   name: string;
   tasks: Task[];
+  boardId: string;
 };

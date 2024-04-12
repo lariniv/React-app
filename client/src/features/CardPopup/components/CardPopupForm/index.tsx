@@ -15,9 +15,8 @@ import {
 import { Textarea } from "@/shared/components/ui/textarea";
 
 import { Calendar, Crosshair, Edit, Tag } from "lucide-react";
+import { AppDispatch, RootState, useBoard, useList } from "@/processes";
 
-import { useList } from "@/app/list-provider/list-provider";
-import { AppDispatch, RootState } from "@/app/store/store";
 import {
   EditActivity,
   MoveActivity,
@@ -30,6 +29,7 @@ import {
 } from "@/entities";
 
 import { formSchema } from "./schemas/form-schema";
+import { moveTodo } from "@/processes/store/board-slice/board-slice";
 
 export default function CardPopupForm({
   task,
@@ -50,7 +50,11 @@ export default function CardPopupForm({
 
   const { id: listId } = useList();
 
-  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+  const { id: boardId } = useBoard();
+
+  const taskBoards = useSelector((state: RootState) => state.board.taskBoards);
+
+  const taskLists = taskBoards.find((board) => board.id === boardId)?.lists;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -86,6 +90,7 @@ export default function CardPopupForm({
         taskId,
         date: new Date(),
         taskName,
+        boardId,
         changedValue: name,
         initialValue: taskName,
         type: "RENAME",
@@ -101,6 +106,7 @@ export default function CardPopupForm({
         taskId,
         date: new Date(),
         taskName,
+        boardId,
         edittedField: "description",
         initialValue: taskDescription,
         changedValue: description,
@@ -118,6 +124,7 @@ export default function CardPopupForm({
         taskId,
         date: new Date(),
         taskName,
+        boardId,
         edittedField: "priority",
         initialValue: taskPriority,
         changedValue: priorityValue,
@@ -138,6 +145,7 @@ export default function CardPopupForm({
         taskId,
         date: new Date(),
         taskName,
+        boardId,
         edittedField: "dueDate",
         initialValue: taskDueDate,
         changedValue: dueDate,
@@ -150,13 +158,27 @@ export default function CardPopupForm({
 
     if (Object.keys(task).length === 0) return;
 
-    dispatch(fetchUpdateTodo({ id: taskId, data: { ...task } }));
+    dispatch(fetchUpdateTodo({ id: taskId, data: { ...task }, boardId }));
 
     if (status && status !== listId) {
-      dispatch(fetchUpdateTodo({ id: taskId, data: { listId: status } }));
+      if (!taskLists) return;
+
+      dispatch(
+        fetchUpdateTodo({ id: taskId, data: { listId: status }, boardId })
+      );
+
+      dispatch(
+        moveTodo({
+          sourceListId: listId,
+          targetListId: status,
+          taskId,
+          boardId,
+        })
+      );
 
       const moveActivityPayload: MoveActivity = {
         taskId,
+        boardId,
         date: new Date(),
         taskName,
         sourceList: taskLists.find((list) => list.id === listId)
@@ -221,15 +243,16 @@ export default function CardPopupForm({
                       className="flex h-10 w-1/2  font-semibold items-center justify-between rounded-md border border-input bg-background px-3 py-0.5 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
                       {...field}
                     >
-                      {taskLists.map((list) => (
-                        <option
-                          key={list.id}
-                          className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-                          value={list.id}
-                        >
-                          {list.name}
-                        </option>
-                      ))}
+                      {taskLists &&
+                        taskLists.map((list) => (
+                          <option
+                            key={list.id}
+                            className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+                            value={list.id}
+                          >
+                            {list.name}
+                          </option>
+                        ))}
                     </select>
                   </div>
                 </FormControl>

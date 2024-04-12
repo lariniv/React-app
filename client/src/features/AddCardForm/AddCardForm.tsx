@@ -19,8 +19,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useList } from "@/app/list-provider/list-provider";
-import { AppDispatch, RootState } from "@/app/store/store";
 import {
   AddActivity,
   TaskDto,
@@ -31,6 +29,7 @@ import {
 import { formSchema } from "./schemas/form-schema";
 import { cn } from "@/shared/lib/utils";
 import { useState } from "react";
+import { AppDispatch, RootState, useBoard, useList } from "@/processes";
 
 export default function AddCardForm({
   children,
@@ -41,11 +40,15 @@ export default function AddCardForm({
 }) {
   const dispatch = useDispatch<AppDispatch>();
 
+  const { id: boardId } = useBoard();
+
   const { id: listId } = useList();
 
-  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+  const boardList = useSelector((state: RootState) => state.board.taskBoards);
 
-  const list = taskLists.find((list) => list.id === listId);
+  const board = boardList.find((board) => board.id === boardId);
+
+  const list = board?.lists.find((list) => list.id === listId);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -82,12 +85,13 @@ export default function AddCardForm({
       listId,
     };
 
-    dispatch(fetchAddTodo({ taskData: task }));
+    dispatch(fetchAddTodo({ taskData: task, boardId }));
 
     const addActivityPayload: AddActivity = {
       date: new Date(),
       taskId: "_",
       taskName: name,
+      boardId,
       listName: list?.name as string,
       type: "ADD",
     };

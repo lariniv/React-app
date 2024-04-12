@@ -1,4 +1,3 @@
-import { AppDispatch, RootState } from "@/app/store/store";
 import { Button } from "@/shared/components/ui/button";
 import {
   Card,
@@ -15,8 +14,6 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { Calendar, ChevronDown } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { useList } from "@/app/list-provider/list-provider";
-import { moveTodo } from "@/app/store/todo-slice/todo-lists-slice";
 import {
   MoveActivity,
   Task,
@@ -24,6 +21,8 @@ import {
   fetchUpdateTodo,
 } from "@/entities";
 import { TaskCardMenu } from "@/features";
+import { AppDispatch, RootState, useBoard, useList } from "@/processes";
+import { moveTodo } from "@/processes/store/board-slice/board-slice";
 
 export default function TaskCard({
   name,
@@ -34,14 +33,21 @@ export default function TaskCard({
 }: Task) {
   const dispatch = useDispatch<AppDispatch>();
 
-  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+  const { id: boardId } = useBoard();
 
   const { id: listId } = useList();
 
-  const { name: listName } = taskLists.find((list) => list.id === listId)!;
+  const taskBoards = useSelector((state: RootState) => state.board.taskBoards);
+
+  const board = taskBoards.find((board) => board.id === boardId);
+
+  const taskLists = board?.lists;
+
+  const list = taskLists && taskLists.find((list) => list.id === listId);
+
+  const listName = list?.name ?? "";
 
   function getPriorityColor(priority: string) {
-    console.log(priority);
     switch (priority) {
       case "LOW":
         return "bg-black/25";
@@ -106,47 +112,56 @@ export default function TaskCard({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="md:w-60 w-[26.5rem]">
-            {taskLists.map((list) => (
-              <DropdownMenuItem
-                className="cursor-pointer"
-                key={list.id}
-                onClick={() => {
-                  if (list.id === listId) return;
+            {taskLists &&
+              taskLists.map((list) => (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  key={list.id}
+                  onClick={() => {
+                    if (list.id === listId) return;
 
-                  dispatch(
-                    fetchUpdateTodo({ id: taskId, data: { listId: list.id } })
-                  );
+                    dispatch(
+                      fetchUpdateTodo({
+                        id: taskId,
+                        data: { listId: list.id },
+                        boardId,
+                      })
+                    );
 
-                  dispatch(
-                    moveTodo({
-                      taskId,
-                      targetListId: list.id,
-                      sourceListId: listId,
-                    })
-                  );
+                    dispatch(
+                      moveTodo({
+                        taskId,
+                        boardId,
+                        targetListId: list.id,
+                        sourceListId: listId,
+                      })
+                    );
 
-                  const activityPayload: MoveActivity = {
-                    date: new Date(),
-                    taskId: taskId,
-                    targetList: list.name,
-                    sourceList: listName,
-                    type: "MOVE",
-                    taskName: name,
-                  };
+                    const activityPayload: MoveActivity = {
+                      date: new Date(),
+                      taskId: taskId,
+                      boardId,
+                      targetList: list.name,
+                      sourceList: listName,
+                      type: "MOVE",
+                      taskName: name,
+                    };
 
-                  console.log("taskid", activityPayload);
-                  const ownerId = localStorage.getItem("token")!;
+                    const ownerId = localStorage.getItem("token")!;
 
-                  if (!ownerId) return;
+                    if (!ownerId) return;
 
-                  dispatch(
-                    fetchAddActivity({ activityData: activityPayload, ownerId })
-                  );
-                }}
-              >
-                <div>{list.name}</div>
-              </DropdownMenuItem>
-            ))}
+                    dispatch(
+                      fetchAddActivity({
+                        activityData: activityPayload,
+                        ownerId,
+                      })
+                    );
+                  }}
+                >
+                  <div>{list.name}</div>
+                </DropdownMenuItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </CardFooter>

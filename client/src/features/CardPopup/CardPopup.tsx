@@ -5,13 +5,12 @@ import {
 } from "@/shared/components/ui/dialog";
 
 import { cn } from "@/shared/lib/utils";
-import { useList } from "@/app/list-provider/list-provider";
 import { useSelector } from "react-redux";
-import { RootState } from "@/app/store/store";
 import { useMemo, useState } from "react";
 import { Task } from "@/entities";
 import { CardActivityItem } from "..";
 import { CardPopupDisplayedData, CardPopupForm } from "./components/";
+import { RootState, useBoard, useList } from "@/processes";
 
 export default function EditCardForm({
   children,
@@ -26,7 +25,12 @@ export default function EditCardForm({
 
   const { id } = useList();
 
-  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+  const { id: boardId } = useBoard();
+
+  const taskBoards = useSelector((state: RootState) => state.board.taskBoards);
+
+  const taskLists = taskBoards.find((board) => board.id === boardId)?.lists;
+
   const activityLog = useSelector(
     (state: RootState) => state.activity.activityLog
   );
@@ -36,7 +40,7 @@ export default function EditCardForm({
   );
 
   const list = useMemo(
-    () => taskLists.find((list) => list.id === id),
+    () => taskLists && taskLists.find((list) => list.id === id),
     [taskLists, id]
   );
 

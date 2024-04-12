@@ -16,8 +16,8 @@ export const fetchAddActivity = createAsyncThunk(
       activityData.date = new Date(activityData.date);
 
       if (activityData.type === "ADD") {
-        const { date, listName, taskName, type } = activityData;
-        const data = { date, listName, taskName, type, listId };
+        const { date, listName, taskName, type, boardId } = activityData;
+        const data = { date, listName, taskName, type, listId, boardId };
         response = await activityService.addListActivity(data, ownerId);
       } else {
         response = await activityService.addActivity(activityData, ownerId);

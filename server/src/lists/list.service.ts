@@ -6,11 +6,11 @@ import { PrismaService } from '../prisma.service';
 export class ListsService {
   constructor(private prisma: PrismaService) {}
 
-  async createList(name: string, ownerId: string): Promise<List> {
+  async createList(name: string, boardId: string): Promise<List> {
     return this.prisma.list.create({
       data: {
         name,
-        ownerId,
+        boardId,
       },
     });
   }
@@ -19,18 +19,18 @@ export class ListsService {
     return this.prisma.list.findMany();
   }
 
-  async getAllListsByOwnerId(ownerId: string): Promise<List[]> {
-    return this.prisma.list.findMany({
-      where: {
-        ownerId,
-      },
-    });
-  }
-
   async getListById(id: string): Promise<List> {
     return this.prisma.list.findUnique({
       where: {
         id,
+      },
+    });
+  }
+
+  async getListsByBoardId(boardId: string): Promise<List[]> {
+    return this.prisma.list.findMany({
+      where: {
+        boardId,
       },
     });
   }

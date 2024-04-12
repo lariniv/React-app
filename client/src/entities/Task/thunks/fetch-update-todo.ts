@@ -4,7 +4,11 @@ import { TaskDto, todoService } from "..";
 export const fetchUpdateTodo = createAsyncThunk(
   "todo/fetchUpdateTodo",
   async (
-    { id, data }: { id: string; data: Partial<TaskDto> },
+    {
+      id,
+      data,
+      boardId,
+    }: { id: string; data: Partial<TaskDto>; boardId: string },
     { rejectWithValue }
   ) => {
     try {
@@ -14,7 +18,7 @@ export const fetchUpdateTodo = createAsyncThunk(
         return rejectWithValue(response.data);
       }
 
-      return response.data;
+      return { ...response.data, boardId };
     } catch (err) {
       return rejectWithValue(err);
     }

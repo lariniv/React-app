@@ -39,9 +39,8 @@ export default function TaskList({
       </div>
 
       <div className="flex flex-col gap-2">
-        {taskArray.map((task) => (
-          <TaskCard key={task.id} {...task} />
-        ))}
+        {taskArray &&
+          taskArray.map((task) => <TaskCard key={task.id} {...task} />)}
       </div>
     </div>
   );

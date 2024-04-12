@@ -1,4 +1,4 @@
-import { RootState } from "@/app/store/store";
+import { RootState, useBoard } from "@/processes";
 import { Activity, TaskList } from "@/entities";
 import { useSelector } from "react-redux";
 import {
@@ -10,12 +10,18 @@ import {
 } from "./helpers";
 
 export default function ActivityItem({ activity }: { activity: Activity }) {
-  const taskLists = useSelector((state: RootState) => state.todo.taskLists);
+  const { id: boardId } = useBoard();
+
+  const boardLists = useSelector((state: RootState) => state.board.taskBoards);
+
+  const board = boardLists.find((board) => board.id === boardId);
+
+  const taskLists = board?.lists;
 
   function ParseAction() {
     let targetList: TaskList | undefined;
 
-    if (activity.type === "REMOVE") {
+    if (activity.type === "REMOVE" && taskLists) {
       targetList = taskLists.find((list) => list.id === activity.targetList);
     }
 

@@ -4,12 +4,11 @@ import { todoListService } from "..";
 export const fetchAddTodoList = createAsyncThunk(
   "todo/fetchAddTodoList",
   async (
-    { name, ownerId }: { name: string; ownerId: string },
+    { name, boardId }: { name: string; boardId: string },
     { rejectWithValue }
   ) => {
     try {
-      const response = await todoListService.addTodoList({ name, ownerId });
-
+      const response = await todoListService.addTodoList({ name, boardId });
       if (response.status !== 201) {
         return rejectWithValue(response.data);
       }

@@ -1,5 +1,5 @@
-import { RootState } from "@/app/store/store";
 import { ActivityItem } from "@/features";
+import { RootState, useBoard } from "@/processes";
 import { Button } from "@/shared/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -42,9 +42,15 @@ export default function HistorySidebar() {
     }
   }, [isOpen]);
 
+  const { id: boardId } = useBoard();
+
   const activityLog = useSelector(
     (state: RootState) => state.activity.activityLog
   );
+
+  const filteredActivityLog = activityLog
+    .filter((activity) => activity.boardId === boardId)
+    .reverse();
 
   return (
     <AnimatePresence>
@@ -85,7 +91,7 @@ export default function HistorySidebar() {
               </div>
 
               <ul className="flex flex-col gap-6 pt-12 px-4 overflow-y-auto max-h-[93vh]">
-                {activityLog.map((activity) => (
+                {filteredActivityLog.map((activity) => (
                   <ActivityItem key={activity.id} activity={activity} />
                 ))}
               </ul>
