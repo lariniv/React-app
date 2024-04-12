@@ -17,9 +17,14 @@ export class ListsController {
   @Post()
   async createList(
     @Body('name') name: string,
-    @Body('ownerId') ownerId: string,
+    @Body('boardId') boardId: string,
   ): Promise<List> {
-    return this.listsService.createList(name, ownerId);
+    return this.listsService.createList(name, boardId);
+  }
+
+  @Get('by-board/:boardId')
+  async getListsByBoardId(@Param('boardId') boardId: string): Promise<List[]> {
+    return this.listsService.getListsByBoardId(boardId);
   }
 
   @Get()

@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { ActivityService } from './activity.service';
-import { Activity, Prisma } from '@prisma/client';
+import { Activity, ListActivity, Prisma } from '@prisma/client';
 
 @Controller('activities')
 export class ActivityController {
@@ -12,7 +12,9 @@ export class ActivityController {
   }
 
   @Get('by-user/:id')
-  async getActivitiesByUserId(@Param('id') id: string): Promise<Activity[]> {
+  async getActivitiesByUserId(
+    @Param('id') id: string,
+  ): Promise<Array<Activity | ListActivity>> {
     return this.activityService.getActivitiesByUserId(id);
   }
 
@@ -31,6 +33,13 @@ export class ActivityController {
     @Param('id') id: string,
   ): Promise<Prisma.BatchPayload> {
     return this.activityService.deleteActivitiesByTaskId(id);
+  }
+
+  @Post('list')
+  async createListActivity(
+    @Body() data: Prisma.ListActivityCreateInput,
+  ): Promise<ListActivity> {
+    return this.activityService.createListActivity(data);
   }
 
   @Post()
